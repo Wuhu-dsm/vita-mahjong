@@ -7,11 +7,11 @@
 
 ### Core Game Loop
 
-- [ ] **CORE-01**: User can start a level from the home screen and enter the game screen
+- [x] **CORE-01**: User can start a level from the home screen and enter the game screen
 - [ ] **CORE-02**: User can select two free matching tiles to remove them from the board
 - [ ] **CORE-03**: Game correctly enforces the free-tile rule (tile is free when no other tile sits directly on top and at least one long side is open)
-- [ ] **CORE-04**: Game detects win when all tiles are cleared and shows the result screen
-- [ ] **CORE-05**: Game detects deadlock when no more moves exist and offers shuffle or retry
+- [x] **CORE-04**: Game detects win when all tiles are cleared and shows the result screen
+- [x] **CORE-05**: Game detects deadlock when no more moves exist and offers shuffle or retry
 - [ ] **CORE-06**: User can navigate back to the home screen from game/result screens
 
 ### Levels & Layouts
@@ -26,7 +26,7 @@
 
 - [ ] **ACCS-01**: Tile size and touch targets are large enough for seniors and low-motor-precision users
 - [ ] **ACCS-02**: Tile faces use high-contrast symbols with clear, readable fonts
-- [ ] **ACCS-03**: Selected and blocked tiles are visually highlighted
+- [x] **ACCS-03**: Selected and blocked tiles are visually highlighted
 - [ ] **ACCS-04**: Game supports one-tap undo, hint, and shuffle controls
 - [ ] **ACCS-05**: Low-pressure mode can be toggled to hide timer and score pressure
 
@@ -89,11 +89,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | Phase 1 | Pending |
+| CORE-01 | Phase 1 | Complete |
 | CORE-02 | Phase 1 | Pending |
 | CORE-03 | Phase 1 | Pending |
-| CORE-04 | Phase 1 | Pending |
-| CORE-05 | Phase 1 | Pending |
+| CORE-04 | Phase 1 | Complete |
+| CORE-05 | Phase 1 | Complete |
 | CORE-06 | Phase 2 | Pending |
 | LVLS-01 | Phase 1 | Complete |
 | LVLS-02 | Phase 1 | Complete |
@@ -102,7 +102,7 @@
 | LVLS-05 | Phase 2 | Pending |
 | ACCS-01 | Phase 2 | Pending |
 | ACCS-02 | Phase 2 | Pending |
-| ACCS-03 | Phase 1 | Pending |
+| ACCS-03 | Phase 1 | Complete |
 | ACCS-04 | Phase 2 | Pending |
 | ACCS-05 | Phase 2 | Pending |
 | VISL-01 | Phase 2 | Pending |
