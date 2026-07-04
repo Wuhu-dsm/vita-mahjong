@@ -5,6 +5,8 @@ import { ScreenManager } from '../renderer/ScreenManager';
 import { GameScreen } from '../renderer/screens/GameScreen';
 import { HomeScreen } from '../renderer/screens/HomeScreen';
 import { ResultScreen } from '../renderer/screens/ResultScreen';
+import { SettingsScreen } from '../renderer/screens/SettingsScreen';
+import { AudioManager } from '../audio/AudioManager';
 
 let currentLevel = 1;
 
@@ -32,11 +34,14 @@ export async function createApp(): Promise<Application> {
   const gameScreen = await GameScreen.create({
     ticker: app.ticker,
     onBack: () => {
+      AudioManager.getInstance().stopBgm();
       void screenManager.show('home', { immediate: true, backgroundColor: config.colors.homeBg });
     },
   });
   const resultScreen = new ResultScreen();
-  const settingsScreen = new Container();
+  const settingsScreen = new SettingsScreen(() => {
+    void screenManager.show('home', { backgroundColor: config.colors.homeBg });
+  });
 
   screenManager.setContent('home', homeScreen);
   screenManager.setContent('game', gameScreen);
@@ -60,6 +65,8 @@ export async function createApp(): Promise<Application> {
   });
 
   gameScreen.on(GameScreen.WIN, (stats) => {
+    AudioManager.getInstance().stopBgm();
+    AudioManager.getInstance().playSfx('win');
     resultScreen.setStats(stats);
     currentLevel = stats.nextLevel;
     updateHomeLevelLabel();
@@ -76,7 +83,10 @@ export async function createApp(): Promise<Application> {
   return app;
 
   async function startLevel(level: number): Promise<void> {
+    // Initialize audio on first user gesture (autoplay policy)
+    await AudioManager.getInstance().init();
     await gameScreen.startLevel(level);
     await screenManager.show('game', { backgroundColor: config.colors.gameBg });
+    AudioManager.getInstance().startBgm();
   }
 }

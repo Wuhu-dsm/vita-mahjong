@@ -4,6 +4,7 @@ import { config } from '../../app/config';
 import { GameState, type GameStats, type GameTapResult } from '../../engine/GameState';
 import type { Level, Stone } from '../../engine/types';
 import { validatePlayableLevel } from '../../engine/validateLevel';
+import { AudioManager } from '../../audio/AudioManager';
 import { BlockedHint } from '../components/BlockedHint';
 import { AssistBar } from '../components/AssistBar';
 import { ComboFeedback } from '../components/ComboFeedback';
@@ -241,6 +242,7 @@ export class GameScreen extends Container {
     this.clearHintHighlights();
     this.tileByStoneId.forEach((candidate) => candidate.highlight(false));
     tile.highlight(true);
+    AudioManager.getInstance().playSfx('tap');
     this.emit(GameScreen.TILE_TAPPED, result.stone);
     this.animateTileToTray(tile, targetSlotIndex, result);
   };
@@ -330,9 +332,11 @@ export class GameScreen extends Container {
       if (result.scoreAwarded > 0) {
         const scoreAnchor = this.hud.getScoreAnchor();
         this.scoreFloater.show(result.scoreAwarded, scoreAnchor.x, scoreAnchor.y);
+        AudioManager.getInstance().playSfx('match');
       }
       if (result.combo >= 2) {
         this.comboFeedback.show(result.combo);
+        AudioManager.getInstance().playSfx('combo');
       }
       if (result.won) {
         const stats = this.state!.getStats();
@@ -340,6 +344,7 @@ export class GameScreen extends Container {
         this.emit(GameScreen.WIN, stats satisfies GameStats);
       } else if (result.failed) {
         this.failurePopup.show();
+        AudioManager.getInstance().playSfx('fail');
       }
     };
 
@@ -366,6 +371,7 @@ export class GameScreen extends Container {
 
   private handleUndo(): void {
     if (!this.state || !this.level || this.inputLocked) return;
+    AudioManager.getInstance().playSfx('click');
     this.clearHintHighlights();
     if (!this.state.undo()) return;
     this.renderBoard();
@@ -379,6 +385,7 @@ export class GameScreen extends Container {
 
   private handleHint(): void {
     if (!this.state || this.inputLocked) return;
+    AudioManager.getInstance().playSfx('click');
     const result = this.state.hint();
     if (!result) {
       // Hint not consumed — update counts without decrementing hint
@@ -422,6 +429,7 @@ export class GameScreen extends Container {
 
   private handleShuffle(): void {
     if (!this.state || !this.level || this.inputLocked) return;
+    AudioManager.getInstance().playSfx('click');
     this.clearHintHighlights();
     if (!this.state.shuffle()) return;
     this.renderBoard();
