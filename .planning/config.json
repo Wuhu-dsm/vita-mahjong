@@ -18,9 +18,9 @@
     "quick_branch_template": null
   },
   "workflow": {
-    "research": false,
-    "plan_check": false,
-    "verifier": false,
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
     "nyquist_validation": false,
     "auto_advance": true,
     "node_repair": true,
@@ -45,8 +45,7 @@
     "post_planning_gaps": true,
     "security_enforcement": true,
     "security_asvs_level": 1,
-    "security_block_on": "high",
-    "_auto_chain_active": true
+    "security_block_on": "high"
   },
   "ship": {
     "pr_body_sections": [
@@ -83,7 +82,7 @@
   "agent_skills": {},
   "claude_md_path": "./.claude/CLAUDE.md",
   "plan_review": {
-    "source_grounding": false,
+    "source_grounding": true,
     "source_grounding_authority": "grep"
   },
   "resolve_model_ids": "omit",
