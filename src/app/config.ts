@@ -6,7 +6,7 @@ export const config = {
   tile: {
     width: 227,
     height: 120,
-    touchPadding: 8,
+    touchPadding: 12,
   },
   tray: {
     height: 128,
