@@ -5,6 +5,7 @@ import { GameState, type GameStats, type GameTapResult } from '../../engine/Game
 import type { Level, Stone } from '../../engine/types';
 import { validatePlayableLevel } from '../../engine/validateLevel';
 import { BlockedHint } from '../components/BlockedHint';
+import { AssistBar } from '../components/AssistBar';
 import { ComboFeedback } from '../components/ComboFeedback';
 import { FailurePopup } from '../components/FailurePopup';
 import { HUD } from '../components/HUD';
@@ -79,6 +80,8 @@ export class GameScreen extends Container {
   private readonly tileByStoneId = new Map<string, TileSprite>();
   private readonly animations: Animation[] = [];
   private readonly blockedFeedback = new BlockedFeedbackLifecycle<TileSprite>();
+  private readonly assistBar: AssistBar;
+  private hintTiles: TileSprite[] | null = null;
   private readonly ticker?: Ticker;
   private state: GameState | null = null;
   private level: Level | null = null;
@@ -127,6 +130,14 @@ export class GameScreen extends Container {
       }
     });
 
+    this.assistBar = new AssistBar(
+      () => this.handleUndo(),
+      () => this.handleHint(),
+      () => this.handleShuffle(),
+    );
+    this.assistBar.position.set(config.designWidth / 2, config.designHeight - 176);
+    this.addChild(this.assistBar);
+
     this.ticker?.add(this.tick);
   }
 
@@ -143,6 +154,7 @@ export class GameScreen extends Container {
 
   loadLevelModel(level: Level): void {
     this.clearBlockedFeedback();
+    this.clearHintHighlights();
     this.level = this.validateLevel(level);
     this.state = new GameState(this.level);
     this.failurePopup.hide();
@@ -150,6 +162,11 @@ export class GameScreen extends Container {
     this.tray.clear();
     this.updateHud();
     this.renderBoard();
+    this.assistBar.updateCounts(
+      this.state.getUndoCount(),
+      this.state.getHintCount(),
+      this.state.getShuffleCount(),
+    );
   }
 
   getActiveTileCount(): number {
@@ -221,6 +238,7 @@ export class GameScreen extends Container {
 
     this.inputLocked = true;
     this.clearBlockedFeedback();
+    this.clearHintHighlights();
     this.tileByStoneId.forEach((candidate) => candidate.highlight(false));
     tile.highlight(true);
     this.emit(GameScreen.TILE_TAPPED, result.stone);
@@ -343,6 +361,84 @@ export class GameScreen extends Container {
         this.animations.splice(index, 1);
         animation.complete();
       }
+    }
+  }
+
+  private handleUndo(): void {
+    if (!this.state || !this.level || this.inputLocked) return;
+    this.clearHintHighlights();
+    if (!this.state.undo()) return;
+    this.renderBoard();
+    this.tray.setSlots(this.state.getTraySlots(), this.level.theme);
+    this.assistBar.updateCounts(
+      this.state.getUndoCount(),
+      this.state.getHintCount(),
+      this.state.getShuffleCount(),
+    );
+  }
+
+  private handleHint(): void {
+    if (!this.state || this.inputLocked) return;
+    const result = this.state.hint();
+    if (!result) {
+      // Hint not consumed — update counts without decrementing hint
+      this.assistBar.updateCounts(
+        this.state.getUndoCount(),
+        this.state.getHintCount(),
+        this.state.getShuffleCount(),
+      );
+      return;
+    }
+
+    const tile1 = this.tileByStoneId.get(result.stoneId);
+    const tile2 = this.tileByStoneId.get(result.partnerId);
+    if (!tile1 || !tile2) return;
+
+    this.clearHintHighlights();
+    this.hintTiles = [tile1, tile2];
+
+    // Pulse animation: gold halo α 0.3→0.6→0.3, 2 cycles over 400ms
+    this.animations.push({
+      elapsedMs: 0,
+      durationMs: 400,
+      update: (progress) => {
+        const alpha = 0.3 + 0.3 * Math.sin(progress * Math.PI * 4);
+        tile1.setHintGlow(alpha);
+        tile2.setHintGlow(alpha);
+      },
+      complete: () => {
+        tile1.setHintGlow(0);
+        tile2.setHintGlow(0);
+        this.hintTiles = null;
+      },
+    });
+
+    this.assistBar.updateCounts(
+      this.state.getUndoCount(),
+      this.state.getHintCount(),
+      this.state.getShuffleCount(),
+    );
+  }
+
+  private handleShuffle(): void {
+    if (!this.state || !this.level || this.inputLocked) return;
+    this.clearHintHighlights();
+    if (!this.state.shuffle()) return;
+    this.renderBoard();
+    this.tray.setSlots(this.state.getTraySlots(), this.level.theme);
+    this.assistBar.updateCounts(
+      this.state.getUndoCount(),
+      this.state.getHintCount(),
+      this.state.getShuffleCount(),
+    );
+  }
+
+  private clearHintHighlights(): void {
+    if (this.hintTiles) {
+      for (const tile of this.hintTiles) {
+        tile.setHintGlow(0);
+      }
+      this.hintTiles = null;
     }
   }
 

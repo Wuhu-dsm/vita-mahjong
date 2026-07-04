@@ -169,6 +169,11 @@ export class TileSprite extends Container {
     this.scale.set(enabled ? 1.04 : 1);
   }
 
+  /** Set halo alpha directly for hint pulse animation. */
+  setHintGlow(alpha: number): void {
+    this.haloSprite.alpha = alpha;
+  }
+
   setBlocked(enabled: boolean): void {
     this.faceSprite.alpha = enabled ? 0.56 : 1;
     this.symbolText.alpha = enabled ? 0.42 : 1;
