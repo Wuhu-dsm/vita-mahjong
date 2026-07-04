@@ -1,40 +1,89 @@
 import type { Level, Stone } from './types';
-import { BoardModel } from './BoardModel';
+import { buildNeighbors, isBlocked } from './isBlocked';
+
+const MAX_VISITED_STATES = 250_000;
+
+function createStones(level: Level): Stone[] {
+  return level.stones.map((s, index) => ({
+    id: `${s.z}-${s.x}-${s.y}-${index}`,
+    z: s.z,
+    x: s.x,
+    y: s.y,
+    face: s.face,
+    picked: false,
+    top: [],
+    left: [],
+    right: [],
+  }));
+}
+
+function stoneOrder(a: Stone, b: Stone): number {
+  return a.z - b.z || a.y - b.y || a.x - b.x;
+}
+
+function stateKey(stones: Stone[], tray: number[]): string {
+  const picked = stones.map((stone) => (stone.picked ? '1' : '0')).join('');
+  const trayFaces = [...tray].sort((a, b) => a - b).join(',');
+
+  return `${picked}|${trayFaces}`;
+}
 
 export class Solver {
   /**
-   * Deterministically verifies that a level can be cleared using the 4-slot tray.
+   * Verifies that a level can be cleared using the 4-slot tray.
    */
   static isSolvable(level: Level): boolean {
-    const board = new BoardModel(level);
-    const tray: Stone[] = [];
+    const stones = createStones(level);
+    const tray: number[] = [];
+    const failedStates = new Set<string>();
+    let visitedStates = 0;
 
-    while (!board.hasWon()) {
-      const free = board.getFree();
-      if (free.length === 0) return false;
+    buildNeighbors(stones);
 
-      // Deterministic choice for test stability. If the tray already contains
-      // a matching face, prefer clearing that pair before adding a new face.
-      const sortedFree = free.sort(
-        (a, b) => a.z - b.z || a.y - b.y || a.x - b.x
-      );
-      const next =
-        sortedFree.find((stone) => tray.some((trayStone) => trayStone.face === stone.face)) ??
-        sortedFree[0];
+    function search(pickedCount: number): boolean {
+      if (pickedCount === stones.length) return true;
+      if (visitedStates > MAX_VISITED_STATES) return false;
 
-      const matchIndex = tray.findIndex((s) => s.face === next.face);
-      if (matchIndex !== -1) {
-        tray.splice(matchIndex, 1);
-      } else {
-        tray.push(next);
+      const key = stateKey(stones, tray);
+      if (failedStates.has(key)) return false;
+
+      visitedStates += 1;
+      const free = stones
+        .filter((stone) => !stone.picked && !isBlocked(stone))
+        .sort(stoneOrder);
+      if (free.length === 0) {
+        failedStates.add(key);
+        return false;
       }
 
-      // Four unmatched tiles in the tray is an immediate failure.
-      if (tray.length === 4) return false;
+      const matchingMoves = free.filter((stone) => tray.includes(stone.face));
+      if (matchingMoves.length === 0 && tray.length === 3) {
+        failedStates.add(key);
+        return false;
+      }
 
-      board.pick(next);
+      const moves = matchingMoves.length > 0 ? matchingMoves : free;
+      for (const next of moves) {
+        const matchIndex = tray.indexOf(next.face);
+        next.picked = true;
+
+        if (matchIndex !== -1) {
+          const [matchedFace] = tray.splice(matchIndex, 1);
+          if (search(pickedCount + 1)) return true;
+          tray.splice(matchIndex, 0, matchedFace);
+        } else {
+          tray.push(next.face);
+          if (tray.length < 4 && search(pickedCount + 1)) return true;
+          tray.pop();
+        }
+
+        next.picked = false;
+      }
+
+      failedStates.add(key);
+      return false;
     }
 
-    return true;
+    return search(0);
   }
 }
