@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "prebuild": "tsx tools/generate-levels.ts",
+    "prebuild": "npm run generate-assets && npm run generate-levels",
+    "generate-assets": "tsx tools/generate-assets.ts",
     "generate-levels": "tsx tools/generate-levels.ts",
     "test": "vitest"
   },
