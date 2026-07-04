@@ -18,6 +18,7 @@ import { TilePool } from '../pools/TilePool';
 export interface GameScreenOptions {
   ticker?: Ticker;
   onBack?: () => void;
+  isLowEndDevice?: boolean;
 }
 
 interface Animation {
@@ -472,9 +473,9 @@ export class GameScreen extends Container {
   }
 
   private toBoardPosition(stone: Stone): { x: number; y: number } {
-    const gridX = 113.5;
-    const gridY = 120;
-    const layerOffset = 28;
+    const gridX = config.tile.width / 2;
+    const gridY = config.tile.height;
+    const layerOffset = config.tile.width / 8;
     return {
       x: stone.x * gridX + stone.z * layerOffset,
       y: stone.y * gridY - stone.z * layerOffset,

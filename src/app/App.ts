@@ -7,8 +7,11 @@ import { HomeScreen } from '../renderer/screens/HomeScreen';
 import { ResultScreen } from '../renderer/screens/ResultScreen';
 import { SettingsScreen } from '../renderer/screens/SettingsScreen';
 import { AudioManager } from '../audio/AudioManager';
+import { saveLevel, loadLevel } from './persistence';
+import { isLowEndDevice } from './performance';
 
-let currentLevel = 1;
+let currentLevel = loadLevel();
+const lowEndDevice = isLowEndDevice();
 
 export async function createApp(): Promise<Application> {
   const app = new Application();
@@ -33,6 +36,7 @@ export async function createApp(): Promise<Application> {
   const homeScreen = new HomeScreen();
   const gameScreen = await GameScreen.create({
     ticker: app.ticker,
+    isLowEndDevice: lowEndDevice,
     onBack: () => {
       AudioManager.getInstance().stopBgm();
       void screenManager.show('home', { immediate: true, backgroundColor: config.colors.homeBg });
@@ -69,6 +73,7 @@ export async function createApp(): Promise<Application> {
     AudioManager.getInstance().playSfx('win');
     resultScreen.setStats(stats);
     currentLevel = stats.nextLevel;
+    saveLevel(currentLevel);
     updateHomeLevelLabel();
     void screenManager.show('result', { backgroundColor: config.colors.resultBg });
   });
