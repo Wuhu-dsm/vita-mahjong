@@ -10,10 +10,31 @@ export interface Stone {
   right: Stone[];
 }
 
+export type ThemeId =
+  | 'zodiac'
+  | 'traditional'
+  | 'animals'
+  | 'oriental'
+  | 'seasons'
+  | 'myth';
+
+export interface FaceSet {
+  id: ThemeId;
+  faceIds: number[];
+}
+
+export interface LevelLayout {
+  id: number;
+  name: string;
+  theme: ThemeId;
+  positions: Array<[z: number, x: number, y: number]>;
+  maxLayer: number;
+}
+
 export interface Level {
   id: number;
   name: string;
   stones: Array<{ z: number; x: number; y: number; face: number }>;
-  theme: string;
+  theme: ThemeId;
   maxLayer: number;
 }
