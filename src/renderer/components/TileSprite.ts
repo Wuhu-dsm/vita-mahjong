@@ -77,6 +77,7 @@ export class TileSprite extends Container {
   private readonly leftArrow: Sprite;
   private readonly rightArrow: Sprite;
   private stoneId: string | null = null;
+  private faceId: number | null = null;
 
   constructor() {
     super();
@@ -154,10 +155,19 @@ export class TileSprite extends Container {
   }
 
   setFace(theme: ThemeId, faceId: number): void {
+    this.faceId = faceId;
     const faceSet = FACE_SYMBOLS[theme] ?? FACE_SYMBOLS.zodiac;
     this.symbolText.text = faceSet[faceId % faceSet.length] ?? String(faceId + 1);
     this.symbolText.style.fill = FACE_TINTS[faceId % FACE_TINTS.length];
     this.sideSprite.tint = config.colors.tileSide;
+  }
+
+  getStoneId(): string | null {
+    return this.stoneId;
+  }
+
+  getFaceId(): number | null {
+    return this.faceId;
   }
 
   highlight(enabled: boolean): void {
@@ -174,6 +184,7 @@ export class TileSprite extends Container {
 
   resetForPool(): void {
     this.stoneId = null;
+    this.faceId = null;
     this.visible = false;
     this.alpha = 1;
     this.position.set(0, 0);
