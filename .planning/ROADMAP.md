@@ -30,9 +30,9 @@ Deliver a mobile-first Mahjong Solitaire experience in three coarse phases: firs
 **UI hint**: yes
 
 Plans:
-- [ ] 01-01: Scaffold project, define core types, BoardModel, Solver, and free-tile rule tests
-- [ ] 01-02: Author 20+ level layouts and implement solvable face generation with solver validation
-- [ ] 01-03: Wire PixiJS renderer, touch input, home→game→result screen skeleton, and win/deadlock detection
+- [ ] 01-01-PLAN.md — Scaffold project, core engine types, BoardModel, Solver, and free-tile rule tests
+- [ ] 01-02-PLAN.md — 20+ level layouts, solvable face generation, and build-time validation
+- [ ] 01-03-PLAN.md — PixiJS renderer, touch input, home/game/result screens, and win/deadlock detection
 
 ### Phase 2: UI/UX, Accessibility & Game Flow
 **Goal**: Players can navigate the full home → level-select → game → result flow with senior-friendly visuals, audio, assist controls, and a true low-pressure mode.
