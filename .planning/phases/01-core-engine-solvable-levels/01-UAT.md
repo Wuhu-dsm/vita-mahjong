@@ -1,56 +1,64 @@
 ---
-status: testing
+status: complete
 phase: 01-core-engine-solvable-levels
 source:
   - 01-VERIFICATION.md
 started: 2026-07-04T19:31:03Z
-updated: 2026-07-04T19:31:03Z
+updated: 2026-07-04T19:46:33Z
 ---
 
 # Phase 01 UAT
 
 ## Current Test
 
-number: 1
-name: Mobile start and board rendering
-expected: |
-  In a 20:9 portrait viewport, tapping "关卡 1" on the home screen transitions to the game screen and shows a correctly stacked board.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
 ### 1. Mobile Start And Board Rendering
 
 expected: In a 20:9 portrait viewport, tapping "关卡 1" on the home screen transitions to the game screen and shows a correctly stacked board.
-result: pending
+result: pass
 
 ### 2. Free-Tile Match Interaction
 
 expected: Tapping two matching free tiles moves them to the tray, clears the pair, updates score/combo, and removes both board tiles.
-result: pending
+result: pass
 
 ### 3. Blocked-Tile Feedback
 
 expected: A blocked tile cannot be selected and shows dimming, red arrows, and "被左右锁住" without obscuring nearby UI.
-result: pending
+result: issue
+reported: "不通过，阻挡的麻将牌点击后，在一定时间后还是展示的异常态，并且周围的麻将牌有箭头遮挡"
+severity: major
 
 ### 4. Win Flow
 
 expected: Clearing all tiles transitions to the result screen with time, score, combo, progress, and next-level action.
-result: pending
+result: pass
 
 ### 5. Failure And Retry Flow
 
 expected: Filling the tray with 4 unmatched tiles, or reaching a no-move state, shows the failure popup with "重新开始" and retry resets the level.
-result: pending
+result: pass
 
 ## Summary
 
 total: 5
-passed: 0
-issues: 0
-pending: 5
+passed: 4
+issues: 1
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+- truth: "A blocked tile cannot be selected and shows dimming, red arrows, and \"被左右锁住\" without obscuring nearby UI."
+  status: failed
+  reason: "User reported: 不通过，阻挡的麻将牌点击后，在一定时间后还是展示的异常态，并且周围的麻将牌有箭头遮挡"
+  severity: major
+  test: 3
+  root_cause: ""
+  artifacts: []
+  missing: []
+  debug_session: ""
