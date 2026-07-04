@@ -30,6 +30,9 @@ function centeredSprite(key: AssetKey, x: number, y: number, width: number): Spr
 
 export class HomeScreen extends Container {
   static readonly START_LEVEL = 'start-level';
+  static readonly OPEN_SETTINGS = 'open-settings';
+
+  private readonly levelButton: Button;
 
   constructor() {
     super();
@@ -52,16 +55,16 @@ export class HomeScreen extends Container {
     );
     this.addChild(ring);
 
-    const levelButton = new Button({
+    this.levelButton = new Button({
       textureKey: 'btn_wooden_capsule',
       label: '关卡 1',
       width: 520,
       height: 150,
       fontSize: 48,
-      onTap: () => this.emit(HomeScreen.START_LEVEL, 1),
+      onTap: () => this.emit(HomeScreen.START_LEVEL),
     });
-    levelButton.position.set(config.designWidth / 2, config.designHeight * 0.72);
-    this.addChild(levelButton);
+    this.levelButton.position.set(config.designWidth / 2, config.designHeight * 0.72);
+    this.addChild(this.levelButton);
 
     const gear = centeredSprite(
       'icon_gear',
@@ -72,6 +75,7 @@ export class HomeScreen extends Container {
     gear.eventMode = 'static';
     gear.cursor = 'pointer';
     gear.hitArea = new Rectangle(-54, -54, 108, 108);
+    gear.on('pointertap', () => this.emit(HomeScreen.OPEN_SETTINGS));
     this.addChild(gear);
 
     const coinLabel = new Text({
@@ -87,5 +91,9 @@ export class HomeScreen extends Container {
     coinLabel.anchor.set(0, 0.5);
     coinLabel.position.set(118, config.designHeight * 0.06);
     this.addChild(coinLabel);
+  }
+
+  setLevel(n: number): void {
+    this.levelButton.setLabel(`关卡 ${n}`);
   }
 }

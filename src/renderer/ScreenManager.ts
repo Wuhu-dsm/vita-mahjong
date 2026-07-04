@@ -1,7 +1,7 @@
 import { Application, Container, type Ticker } from 'pixi.js';
 import { config } from '../app/config';
 
-export type ScreenName = 'home' | 'game' | 'result';
+export type ScreenName = 'home' | 'game' | 'result' | 'settings';
 
 export interface ScreenShowOptions {
   immediate?: boolean;
@@ -26,11 +26,13 @@ export class ScreenManager {
   readonly home = new Container();
   readonly game = new Container();
   readonly result = new Container();
+  readonly settings = new Container();
 
   private readonly screens: Record<ScreenName, Container> = {
     home: this.home,
     game: this.game,
     result: this.result,
+    settings: this.settings,
   };
 
   private activeScreen: ScreenName | null = null;
@@ -41,6 +43,7 @@ export class ScreenManager {
     home: 1,
     game: 1,
     result: 1,
+    settings: 1,
   };
 
   constructor(private readonly app: Application) {
