@@ -7,7 +7,7 @@ Deliver a mobile-first Mahjong Solitaire experience in three coarse phases: firs
 ## Phases
 
 - [x] **Phase 1: Core Engine & Solvable Levels** - Deterministic board model, free-tile rule, solvable generation, basic rendering/input, and win/deadlock detection (completed 2026-07-04)
-- [ ] **Phase 2: UI/UX, Accessibility & Game Flow** - Screens, HUD, level select, senior-friendly visuals, low-pressure mode, audio, undo/hint/shuffle
+- [x] **Phase 2: UI/UX, Accessibility & Game Flow** - Screens, HUD, level select, senior-friendly visuals, low-pressure mode, audio, undo/hint/shuffle (completed 2026-07-05)
 - [ ] **Phase 3: Polish, Persistence & Distribution** - Settings/progress persistence, session recovery, particles, performance tiers, PWA/native H5 builds
 
 ## Phase Details
@@ -71,7 +71,7 @@ Plans:
   6. Sound effects and background music play and can be independently muted/controlled.
   7. Result screen shows level completion, time/score when enabled, and retry/next buttons.
 
-**Plans**: 3 plans
+**Plans**: 3/3 plans complete
 **Risk Notes**:
 
   - Hint/shuffle must remain solution-aware to avoid dead-ends; reuse Solver from Phase 1.
@@ -85,13 +85,13 @@ Plans:
 
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Screen flow, navigation, tile layout grid parameters, HUD timer, dynamic level button
+- [x] 02-01-PLAN.md — Screen flow, navigation, tile layout grid parameters, HUD timer, dynamic level button
 - *(02-01 modifies ScreenManager, HomeScreen, GameScreen, HUD, App — sets foundation for Waves 2)*
 
 **Wave 2** *(parallel execution: 02-02 and 02-03 both depend on 02-01)*
 
-- [ ] 02-02-PLAN.md — Assist controls: undo (3x), hint (3x via Solver), shuffle (1x) with count-limited AssistBar
-- [ ] 02-03-PLAN.md — Audio system (Web Audio API SFX + pentatonic BGM) + Settings screen with volume/mute controls
+- [x] 02-02-PLAN.md — Assist controls: undo (3x), hint (3x via Solver), shuffle (1x) with count-limited AssistBar
+- [x] 02-03-PLAN.md — Audio system (Web Audio API SFX + pentatonic BGM) + Settings screen with volume/mute controls
 
 ### Phase 3: Polish, Persistence & Distribution
 
@@ -127,7 +127,7 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Engine & Solvable Levels | 5/5 | Complete   | 2026-07-04 |
-| 2. UI/UX, Accessibility & Game Flow | 0/3 | Not started | - |
+| 2. UI/UX, Accessibility & Game Flow | 3/3 | Complete   | 2026-07-05 |
 | 3. Polish, Persistence & Distribution | 0/2 | Not started | - |
 
 ## Coverage Validation
