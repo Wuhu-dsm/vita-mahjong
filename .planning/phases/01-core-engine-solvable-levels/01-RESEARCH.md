@@ -566,22 +566,13 @@ html, body {
 
 **If this table is empty:** Not applicable — assumptions are listed above.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Tile footprint and grid step**
-   - What we know: PRD says tile width ~0.21 screen width, height ~0.11 screen height; free-tile rule needs neighbor definitions.
-   - What's unclear: Exact horizontal/vertical overlap between stacked tiles and whether the engine should use integer grid coordinates or sub-pixel placements.
-   - Recommendation: Start with an integer grid (2-unit horizontal step, 1-unit vertical step) matching the `ffalt/mah` model; adjust visually by scaling sprite positions.
+1. **Tile footprint and grid step** — RESOLVED: Use an integer grid with a 2-unit horizontal step and 1-unit vertical step matching the `ffalt/mah` model; visual scaling maps grid coordinates to the 1080×2400 design-resolution canvas.
 
-2. **Solver strictness for generation**
-   - What we know: Backward-dealing guarantees one path; solver verifies.
-   - What's unclear: Whether every PRD layout (especially level 20 with 128 tiles/7 layers) will produce a solvable deal within the retry budget.
-   - Recommendation: Build the generator with a retry loop and a deterministic solver; if a layout repeatedly fails, tune the layout shape before launch.
+2. **Solver strictness for generation** — RESOLVED: Build the generator with a deterministic backward-dealing algorithm plus a forward solver verification loop; if a layout repeatedly fails after the retry budget, the build script exits non-zero so the layout can be tuned before release.
 
-3. **Test runner canvas environment**
-   - What we know: Vitest runs Node/V8; PixiJS needs a canvas/WebGL context.
-   - What's unclear: Whether rendering tests need `vitest-browser-mode` or can rely on model-only tests for Phase 1.
-   - Recommendation: Phase 1 tests focus on model/engine logic; defer rendering tests to Phase 2/3.
+3. **Test runner canvas environment** — RESOLVED: Phase 1 tests focus on model/engine logic (BoardModel, Solver, TrayModel, free-tile rule) using Vitest in Node; rendering tests and canvas-dependent assertions are deferred to Phase 2/3.
 
 ## Environment Availability
 

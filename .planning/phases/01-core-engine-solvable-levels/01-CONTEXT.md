@@ -22,7 +22,7 @@ This phase does **not** include undo/hint/shuffle props, audio/haptics, persiste
 - **D-03:** There is **no revive/continue-after-failure** in Phase 1. The failure popup offers only **Restart** (retry the current level from scratch, score reset).
 - **D-04:** Pairing inside the tray follows the rule: **any two matching tiles pair regardless of adjacency**; a third matching tile remains in the tray. This matches PRD's description of two identical tiles pairing as soon as they are both in the tray.
 - **D-05:** Tapping a non-free (blocked) tile gives **visual + text feedback**: the tile darkens, red arrows appear on the blocked sides, and a "被左右锁住" text hint is shown.
-- **D-06:** The **"tray almost full" warning popup** (3 unmatched tiles) is **deferred** to a later phase; Phase 1 only handles the full-tray failure state.
+- **D-06 [informational]:** The **"tray almost full" warning popup** (3 unmatched tiles) is **deferred** to a later phase; Phase 1 only handles the full-tray failure state.
 
 ### Level Data Source
 
