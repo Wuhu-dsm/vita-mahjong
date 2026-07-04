@@ -24,6 +24,7 @@
 **Goal:** 搭建项目脚手架并实现首页入口。
 
 **Mode:** mvp
+**UI hint**: yes
 
 **Requirements:**
 - HOME-01: 首页展示 Logo、木质胶囊「关卡 N」主入口按钮、右上角设置齿轮、左上角头像/金币占位装饰
