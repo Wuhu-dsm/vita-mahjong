@@ -116,8 +116,11 @@ Plans:
 
 Plans:
 
-- [ ] 03-01: Persist settings and progress in localStorage; implement session recovery including undo stack
-- [ ] 03-02: Add degradable particles/animations, performance quality tiers, PWA manifest, and native H5 wrapper
+**Wave 1**
+- [ ] 03-01-PLAN.md — localStorage persistence (level + audio), session recovery (currentLevel), performance detection, Reset Progress button with confirmation dialog
+
+**Wave 2** *(blocked on Wave 1 completion — reads config added in 03-01)*
+- [ ] 03-02-PLAN.md — ParticleBurst effect (object-pooled, 15-20/8-10 particles), GameScreen integration, PWA manifest + Service Worker (vite-plugin-pwa), app icons
 
 ## Progress
 
