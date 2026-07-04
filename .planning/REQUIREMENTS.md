@@ -16,10 +16,10 @@
 
 ### Levels & Layouts
 
-- [ ] **LVLS-01**: Game provides at least 20 playable levels
-- [ ] **LVLS-02**: Level 20 contains no more than 128 tiles and 7 layers
-- [ ] **LVLS-03**: Every level layout is guaranteed solvable (at least one clearable path exists)
-- [ ] **LVLS-04**: Each tile face appears an even number of times in every level
+- [x] **LVLS-01**: Game provides at least 20 playable levels
+- [x] **LVLS-02**: Level 20 contains no more than 128 tiles and 7 layers
+- [x] **LVLS-03**: Every level layout is guaranteed solvable (at least one clearable path exists)
+- [x] **LVLS-04**: Each tile face appears an even number of times in every level
 - [ ] **LVLS-05**: User can select any unlocked level from a level-select screen
 
 ### Accessibility & UX
@@ -95,10 +95,10 @@
 | CORE-04 | Phase 1 | Pending |
 | CORE-05 | Phase 1 | Pending |
 | CORE-06 | Phase 2 | Pending |
-| LVLS-01 | Phase 1 | Pending |
-| LVLS-02 | Phase 1 | Pending |
-| LVLS-03 | Phase 1 | Pending |
-| LVLS-04 | Phase 1 | Pending |
+| LVLS-01 | Phase 1 | Complete |
+| LVLS-02 | Phase 1 | Complete |
+| LVLS-03 | Phase 1 | Complete |
+| LVLS-04 | Phase 1 | Complete |
 | LVLS-05 | Phase 2 | Pending |
 | ACCS-01 | Phase 2 | Pending |
 | ACCS-02 | Phase 2 | Pending |
@@ -122,6 +122,7 @@
 | PLAT-04 | Phase 1 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 31 total
 - Mapped to phases: 31
 - Unmapped: 0 ✓
