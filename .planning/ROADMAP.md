@@ -22,7 +22,7 @@ Deliver a mobile-first Mahjong Solitaire experience in three coarse phases: firs
   3. Blocked tiles cannot be selected and free/blocked states are visually distinct.
   4. When the last tile is removed, the game transitions to a result screen.
   5. When no legal moves remain, the game detects deadlock and offers shuffle or retry.
-**Plans**: 3 plans
+**Plans**: 4 plans
 **Risk Notes**:
   - Free-tile rule must be centralized and property-tested; boundary/layer cases are error-prone.
   - Level-20 density (≤128 tiles, 7 layers) may require build-time generation or a Web Worker to avoid startup jank.
@@ -32,7 +32,8 @@ Deliver a mobile-first Mahjong Solitaire experience in three coarse phases: firs
 Plans:
 - [ ] 01-01-PLAN.md — Scaffold project, core engine types, BoardModel, Solver, and free-tile rule tests
 - [ ] 01-02-PLAN.md — 20+ level layouts, solvable face generation, and build-time validation
-- [ ] 01-03-PLAN.md — PixiJS renderer, touch input, home/game/result screens, and win/deadlock detection
+- [ ] 01-03-PLAN.md — Procedurally generate textures, font manifest, and PixiJS asset loader
+- [ ] 01-04-PLAN.md — PixiJS renderer, touch input, home/game/result screens, and win/deadlock detection
 
 ### Phase 2: UI/UX, Accessibility & Game Flow
 **Goal**: Players can navigate the full home → level-select → game → result flow with senior-friendly visuals, audio, assist controls, and a true low-pressure mode.
@@ -85,7 +86,7 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Engine & Solvable Levels | 0/3 | Not started | - |
+| 1. Core Engine & Solvable Levels | 0/4 | Not started | - |
 | 2. UI/UX, Accessibility & Game Flow | 0/3 | Not started | - |
 | 3. Polish, Persistence & Distribution | 0/2 | Not started | - |
 
