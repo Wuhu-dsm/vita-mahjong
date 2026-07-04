@@ -6,6 +6,7 @@ async function main(): Promise<void> {
     console.log('Vita Mahjong booted', app.renderer.width, app.renderer.height);
   } catch (err) {
     console.error('Failed to bootstrap Vita Mahjong:', err);
+    throw err;
   }
 }
 
