@@ -467,7 +467,7 @@ bgmBus.connect(ctx.destination);
 | A4 | `BoardModel.shuffle()` by shuffling positions preserves solvability (same layout, randomized assignments) | Architecture Patterns | HIGH — shuffled layouts may become unsolvable. Plan must include a post-shuffle solvability check or use a safe algorithm. |
 | A5 | GameState undo stack of 3 entries is sufficient (matches D-05 limit) | Architecture Patterns | LOW — D-05 locks this limit |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Shuffle solvability guarantee**
    - What we know: D-07 says shuffle "re-randomizes remaining tile positions." A naive position shuffle can create unsolvable layouts.

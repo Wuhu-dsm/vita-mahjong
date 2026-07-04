@@ -72,25 +72,14 @@ Exceptions:
 
 ## Typography
 
-Phase 1 font family and weight range preserved. Phase 2 extends sizing for new UI elements.
+Typography uses a 4-size hierarchy (26/30/42/72) with 2 weights (400/800). All roles remap to these buckets.
 
 | Role | Size | Weight | Line Height | Usage | Source |
 |------|------|--------|-------------|-------|--------|
-| Body | 28px | 400 | 1.4 | General UI text | Phase 1 (unchanged) |
-| Label | 24px | 600 | 1.3 | Secondary labels | Phase 1 (unchanged) |
-| Heading | 40px | 700 | 1.2 | Section titles | Phase 1 (unchanged) |
-| Display | 72px | 800 | 1.1 | Hero titles | Phase 1 (unchanged) |
-| **HUD-text** | 28px | 800 | 1.3 | HUD labels (level, score, combo, timer) | existing HUD.ts |
-| **HUD-timer** | 28px | 800 | 1.3 | Elapsed time display on game HUD | matches HUD.ts |
-| **Btn-default** | 42px | 800 | 1.2 | Default button label size | existing Button.ts |
-| **Btn-assist** | 26px | 700 | 1.3 | Assist button labels (smaller for 3-up fit) | RESEARCH.md §Pattern 4 |
-| **Btn-large** | 48px | 800 | 1.2 | Home "关卡 X" and Result "关卡 N" CTAs | existing HomeScreen/ResultScreen |
-| **Settings-label** | 30px | 600 | 1.3 | Settings page row labels ("音效音量") | matches ResultScreen stat labels |
-| **Settings-value** | 28px | 700 | 1.3 | Settings page current value text | derived |
-| **Result-stat** | 42px | 700 | 1.2 | Result screen stat values (time, score, combo) | existing ResultScreen.ts |
-| **Result-subtitle** | 34px | 600 | 1.3 | Beat ratio text | existing ResultScreen.ts |
-| **Failure-heading** | 58px | 900 | 1.1 | Failure popup title | existing FailurePopup.ts |
-| **Tile-face** | 50px | 900 | 1.1 | Tile face symbol number | existing TileSprite.ts |
+| Body | 30px | 400 | 1.4 | General UI text, HUD labels, timer, settings values | Phase 1 + Phase 2 |
+| Assist | 26px | 800 | 1.3 | Assist button labels (smallest for 3-up fit), secondary labels | Phase 2 |
+| Heading | 42px | 800 | 1.2 | Section titles, button labels, result stat values, large CTAs | Phase 1 + Phase 2 |
+| Display | 72px | 800 | 1.1 | Hero titles, failure popup heading, tile face symbols | Phase 1 + Phase 2 |
 
 Font stack (all text objects): `'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif'`
 
@@ -103,8 +92,8 @@ Text colors (fill):
 - Failure heading: `0xc0392b` (destructive red)
 
 Stroke: All text uses dark stroke for contrast on varied backgrounds.
-- Large text (≥40px): stroke color `0x29170b` or `0x5a2d16`, width 4px
-- Small text (<40px): stroke color `0x08352c` or `0x4a2414`, width 2–3px
+- Heading/Display roles (42px, 72px): stroke color `0x29170b` or `0x5a2d16`, width 4px
+- Body/Assist roles (26px, 30px): stroke color `0x08352c` or `0x4a2414`, width 2–3px
 
 ---
 
@@ -285,7 +274,7 @@ Minimal changes. Existing layout verified against key_nodes/08_level_clear.png a
 
 **Layout (unchanged):**
 ```
-y=0.16  →  Title "智慧超群" (78px, gold accent)
+y=0.16  →  Title "智慧超群" (72px Display, gold accent)
 y=0.24  →  Lotus deco (620px, centered)
 y=0.345 →  Stat labels row (time / score / combo)
 y=0.39  →  Stat values row
@@ -323,17 +312,17 @@ y=0.82  →  Next level button (520×150px, btn_green_capsule)
 
 **Specs:**
 - Background: `bg_game` or solid `0x1B4D3E` (gameBg for visual consistency)
-- Title: "设置", 48px, weight 800, fill `0xf5d78e`, stroke 4px `0x29170b`, centered at y = safeAreaTop + 48
+- Title: "设置", 42px Heading, stroke 4px `0x29170b`, centered at y = safeAreaTop + 48
 - Back button: `icon_back` inside `btn_circle_brown` (76px), positioned at x=0.07 same as HUD back
 - Rows: 4 rows, each ~96px tall, with `rgba(62,39,35,0.6)` card background (900px wide, centered), rounded corners
 - Row layout per row:
   - Icon (left): 32px, text symbol `♪` / `♫`
   - Label (left of center): 30px, `0xd4a574`
   - Control (right): Slider bar (for volume rows) / Mute icon (for toggle rows)
-  - Value text (far right): 28px, `0xfff5dc`, shows "0"–"100" for volume, on/off for mute
+  - Value text (far right): 30px Body, `0xfff5dc`, shows "0"–"100" for volume, on/off for mute
 - Slider bar: Track 600px × 8px, fill `0xF5D78E`, empty `0xD4A574`. Draggable thumb 28px circle. Vertical center aligned.
 - Mute toggle: Tap on icon area toggles state. Icon shows enabled (white/gold) or muted (red `0xC0392B`).
-- Footer: "Vita Mahjong v1.0", 22px, `0xD4A574`, centered at y ≈ 0.75. Deferred to Phase 3 if time-constrained.
+- Footer: "Vita Mahjong v1.0", 26px Assist, `0xD4A574`, centered at y ≈ 0.75. Deferred to Phase 3 if time-constrained.
 
 ---
 
