@@ -8,7 +8,7 @@ Deliver a mobile-first Mahjong Solitaire experience in three coarse phases: firs
 
 - [x] **Phase 1: Core Engine & Solvable Levels** - Deterministic board model, free-tile rule, solvable generation, basic rendering/input, and win/deadlock detection (completed 2026-07-04)
 - [x] **Phase 2: UI/UX, Accessibility & Game Flow** - Screens, HUD, level select, senior-friendly visuals, low-pressure mode, audio, undo/hint/shuffle (completed 2026-07-05)
-- [ ] **Phase 3: Polish, Persistence & Distribution** - Settings/progress persistence, session recovery, particles, performance tiers, PWA/native H5 builds
+- [x] **Phase 3: Polish, Persistence & Distribution** - Settings/progress persistence, session recovery, particles, performance tiers, PWA/native H5 builds (completed 2026-07-04)
 
 ## Phase Details
 
@@ -105,7 +105,7 @@ Plans:
   3. Closing and reopening the game restores the last active level, undo history, and selection.
   4. Project produces a static mobile web build and can be wrapped as a native H5 app (e.g., Capacitor).
 
-**Plans**: 2 plans
+**Plans**: 2/2 plans complete
 **Risk Notes**:
 
   - localStorage writes during play can jank; persist only at level end, pause, or app background.
@@ -117,10 +117,12 @@ Plans:
 Plans:
 
 **Wave 1**
-- [ ] 03-01-PLAN.md — localStorage persistence (level + audio), session recovery (currentLevel), performance detection, Reset Progress button with confirmation dialog
+
+- [x] 03-01-PLAN.md — localStorage persistence (level + audio), session recovery (currentLevel), performance detection, Reset Progress button with confirmation dialog
 
 **Wave 2** *(blocked on Wave 1 completion — reads config added in 03-01)*
-- [ ] 03-02-PLAN.md — ParticleBurst effect (object-pooled, 15-20/8-10 particles), GameScreen integration, PWA manifest + Service Worker (vite-plugin-pwa), app icons
+
+- [x] 03-02-PLAN.md — ParticleBurst effect (object-pooled, 15-20/8-10 particles), GameScreen integration, PWA manifest + Service Worker (vite-plugin-pwa), app icons
 
 ## Progress
 
@@ -131,7 +133,7 @@ Phases execute in numeric order: 1 → 2 → 3
 |-------|----------------|--------|-----------|
 | 1. Core Engine & Solvable Levels | 5/5 | Complete   | 2026-07-04 |
 | 2. UI/UX, Accessibility & Game Flow | 3/3 | Complete   | 2026-07-05 |
-| 3. Polish, Persistence & Distribution | 0/2 | Not started | - |
+| 3. Polish, Persistence & Distribution | 2/2 | Complete   | 2026-07-04 |
 
 ## Coverage Validation
 

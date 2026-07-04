@@ -58,9 +58,10 @@ export class Slider extends Container {
       const stage = this.getStage();
       if (!stage) return;
 
-      stage.on('pointermove', this.onPointerMove.bind(this));
-      stage.on('pointerup', this.onPointerUp.bind(this));
-      stage.on('pointerupoutside', this.onPointerUp.bind(this));
+      stage.eventMode = 'static';
+      stage.on('pointermove', this.onPointerMove);
+      stage.on('pointerup', this.onPointerUp);
+      stage.on('pointerupoutside', this.onPointerUp);
       this.stageBound = true;
     });
 
@@ -122,14 +123,10 @@ export class Slider extends Container {
   }
 
   private getStage(): Container | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let current: Container | undefined = this.parent;
-    while (current) {
-      if ('stage' in current && (current as Record<string, unknown>).stage) {
-        return (current as { stage: Container }).stage;
-      }
-      current = current.parent ?? undefined;
+    let current: Container = this;
+    while (current.parent) {
+      current = current.parent;
     }
-    return current?.parent?.parent ?? undefined;
+    return current;
   }
 }

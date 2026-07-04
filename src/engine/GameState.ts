@@ -190,22 +190,31 @@ export class GameState {
   }
 
   undo(): boolean {
-    if (this.undoCount <= 0 || this.actionHistory.length === 0) return false;
-    const entry = this.actionHistory.pop()!;
-    const stone1 = this.getStone(entry.stoneIds[0]);
-    const stone2 = this.getStone(entry.stoneIds[1]);
-    if (!stone1 || !stone2) return false;
+    const currentSlots = this.tray.peek();
+    const hasUnmatched = currentSlots.some((s) => s !== null);
 
-    // Restore both stones to board
-    this.board.restore(stone1);
-    this.board.restore(stone2);
-    buildNeighbors(this.board.getStones());
-
-    // Restore partner to its tray slot
-    const partnerIndex = entry.trayIndices[0];
-    if (partnerIndex >= 0) {
-      this.tray.restoreAt(partnerIndex, stone1);
+    if (hasUnmatched) {
+      for (let i = 0; i < currentSlots.length; i++) {
+        if (currentSlots[i] !== null) {
+          this.board.restore(currentSlots[i]!);
+          this.tray.clearSlot(i);
+        }
+      }
+      buildNeighbors(this.board.getStones());
     }
+
+    if (this.undoCount <= 0 || this.actionHistory.length === 0) return hasUnmatched;
+
+    const entry = this.actionHistory.pop()!;
+    const partner = this.getStone(entry.stoneIds[0]);
+    const incoming = this.getStone(entry.stoneIds[1]);
+    if (!partner || !incoming) return hasUnmatched;
+
+    // Incoming stone was on board → restore to board only
+    this.board.restore(incoming);
+    // Partner was in tray → restore to tray only (NOT board)
+    this.tray.restoreAt(entry.trayIndices[0], partner);
+    buildNeighbors(this.board.getStones());
 
     this.undoCount--;
     return true;

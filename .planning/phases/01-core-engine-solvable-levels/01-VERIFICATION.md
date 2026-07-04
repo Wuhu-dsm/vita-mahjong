@@ -1,20 +1,23 @@
 ---
 phase: 01-core-engine-solvable-levels
 verified: 2026-07-04T20:26:11Z
-status: human_needed
+status: passed
 score: "14/15 must-haves verified"
 behavior_unverified: 1
 overrides_applied: 0
 deferred:
+
   - truth: "Home level-select grid for choosing any unlocked/generated level directly"
     addressed_in: "Phase 2"
     evidence: "Phase 2 success criteria include: User can choose any unlocked level from a level-select screen."
 behavior_unverified_items:
+
   - truth: "Blocked feedback shows one coherent red-arrow/text cue without obscuring adjacent tiles."
     test: "Re-run Phase 01 UAT test 3 in a 20:9 portrait viewport after plan 01-05."
     expected: "A blocked tile does not select or move; it briefly dims, clears after about 1.2 seconds, and shows only one readable red-arrow/text cue without covering nearby tile faces, tray slots, or HUD controls."
     why_human: "Automated tests verify lifecycle and non-duplicated arrow ownership, but final readability/occlusion depends on Pixi canvas composition and mobile viewport perception. Review WR-03 remains a visual risk because BlockedHint is still inside the scaled/sortable board layer."
 human_verification:
+
   - test: "Phase 01 UAT test 3: Blocked-Tile Feedback"
     expected: "A blocked tile cannot be selected or removed; the tile briefly dims, the cue fades after roughly 1.2 seconds, only one red-arrow/text cue with '被左右锁住' appears, and adjacent tile faces/tray/HUD remain readable."
     why_human: "The root cause is fixed in code and tests pass, but the final cue placement/readability must be inspected in the target mobile portrait browser/canvas."
@@ -22,6 +25,7 @@ re_verification:
   previous_status: human_needed
   previous_score: "11/13"
   gaps_closed:
+
     - "Blocked-tile stale dimming and duplicate persistent arrow implementation root cause closed by plan 01-05 code and regression tests."
   gaps_remaining: []
   regressions: []

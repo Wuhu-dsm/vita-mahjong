@@ -481,19 +481,19 @@ export default defineConfig({
 | A4 | `localStorage` `vita-mahjong:` key prefix avoids collisions in all target environments | Don't Hand-Roll | If another app on same origin uses same keys → data conflict. Unlikely for a standalone game deployed to its own domain. |
 | A5 | PWA icons can be programmatically generated via existing `tools/generate-assets.ts` pattern | Code Examples | If not, static PNG files must be created manually; no blocking impact, just different implementation path |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **PWA Icon Source**
+1. **PWA Icon Source** (RESOLVED)
    - What we know: manifest needs 192x192 and 512x512 PNG icons. The project already uses `tools/generate-assets.ts` for programmatic asset generation.
    - What's unclear: Whether to extend the existing asset generator to produce PWA icons, or create static PNGs manually. The CONTEXT.md leaves this to agent discretion.
    - Recommendation: Use static app-icon PNGs (generated once, committed to `public/icons/`) unless the generate-assets toolchain already supports the tile logo rendering. Simpler and lower risk.
 
-2. **iOS Safari PWA Support**
+2. **iOS Safari PWA Support** (RESOLVED)
    - What we know: iOS Safari supports manifest and SW but has quirks (requires `apple-mobile-web-app-capable` meta tag, standalone mode has different behavior than Android Chrome).
    - What's unclear: Whether Phase 3 should include iOS-specific PWA meta tags (`apple-touch-icon`, `apple-mobile-web-app-status-bar-style`) or leave for a future polish pass.
    - Recommendation: Include minimal iOS meta tags (apple-touch-icon link, apple-mobile-web-app-capable) since the target platform includes iOS Safari. The `vite-plugin-pwa` plugin can inject these.
 
-3. **Visibility Change Save Scope**
+3. **Visibility Change Save Scope** (RESOLVED)
    - What we know: CONTEXT.md says persist at level end, pause, or app background. `visibilitychange` event fires when app goes to background.
    - What's unclear: Whether the visibilitychange handler should also save audio settings if they changed during a game (the settings screen is separate from gameplay).
    - Recommendation: Save both level and audio on visibilitychange. The audio save is a no-op if unchanged (just overwrites with same data). Simple, safe, no edge cases.
