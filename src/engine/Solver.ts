@@ -13,10 +13,14 @@ export class Solver {
       const free = board.getFree();
       if (free.length === 0) return false;
 
-      // Deterministic choice for test stability.
-      const next = free.sort(
+      // Deterministic choice for test stability. If the tray already contains
+      // a matching face, prefer clearing that pair before adding a new face.
+      const sortedFree = free.sort(
         (a, b) => a.z - b.z || a.y - b.y || a.x - b.x
-      )[0];
+      );
+      const next =
+        sortedFree.find((stone) => tray.some((trayStone) => trayStone.face === stone.face)) ??
+        sortedFree[0];
 
       const matchIndex = tray.findIndex((s) => s.face === next.face);
       if (matchIndex !== -1) {
