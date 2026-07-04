@@ -1,10 +1,12 @@
-import { Application } from 'pixi.js';
+import { Application, Container } from 'pixi.js';
 import { loadAssets } from './assets';
 import { config } from './config';
 import { ScreenManager } from '../renderer/ScreenManager';
 import { GameScreen } from '../renderer/screens/GameScreen';
 import { HomeScreen } from '../renderer/screens/HomeScreen';
 import { ResultScreen } from '../renderer/screens/ResultScreen';
+
+let currentLevel = 1;
 
 export async function createApp(): Promise<Application> {
   const app = new Application();
@@ -27,25 +29,44 @@ export async function createApp(): Promise<Application> {
 
   const screenManager = new ScreenManager(app);
   const homeScreen = new HomeScreen();
-  const gameScreen = await GameScreen.create({ ticker: app.ticker });
+  const gameScreen = await GameScreen.create({
+    ticker: app.ticker,
+    onBack: () => {
+      void screenManager.show('home', { immediate: true, backgroundColor: config.colors.homeBg });
+    },
+  });
   const resultScreen = new ResultScreen();
+  const settingsScreen = new Container();
 
   screenManager.setContent('home', homeScreen);
   screenManager.setContent('game', gameScreen);
   screenManager.setContent('result', resultScreen);
+  screenManager.setContent('settings', settingsScreen);
 
-  homeScreen.on(HomeScreen.START_LEVEL, (level: number) => {
-    void startLevel(level);
+  function updateHomeLevelLabel(): void {
+    homeScreen.setLevel(currentLevel);
+  }
+
+  homeScreen.on(HomeScreen.START_LEVEL, () => {
+    void startLevel(currentLevel);
   });
 
-  resultScreen.on(ResultScreen.NEXT_LEVEL, (level: number) => {
-    void startLevel(level);
+  homeScreen.on(HomeScreen.OPEN_SETTINGS, () => {
+    void screenManager.show('settings', { backgroundColor: config.colors.gameBg });
+  });
+
+  resultScreen.on(ResultScreen.NEXT_LEVEL, () => {
+    void startLevel(currentLevel);
   });
 
   gameScreen.on(GameScreen.WIN, (stats) => {
     resultScreen.setStats(stats);
+    currentLevel = stats.nextLevel;
+    updateHomeLevelLabel();
     void screenManager.show('result', { backgroundColor: config.colors.resultBg });
   });
+
+  updateHomeLevelLabel();
 
   await screenManager.show('home', {
     immediate: true,
