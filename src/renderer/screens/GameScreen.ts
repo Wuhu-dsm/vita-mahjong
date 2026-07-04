@@ -2,7 +2,8 @@ import { Assets, Container, Sprite, Texture, type Ticker } from 'pixi.js';
 import { loadAssets } from '../../app/assets';
 import { config } from '../../app/config';
 import { GameState, type GameStats, type GameTapResult } from '../../engine/GameState';
-import type { Level, Stone, ThemeId } from '../../engine/types';
+import type { Level, Stone } from '../../engine/types';
+import { validatePlayableLevel } from '../../engine/validateLevel';
 import { BlockedHint } from '../components/BlockedHint';
 import { ComboFeedback } from '../components/ComboFeedback';
 import { FailurePopup } from '../components/FailurePopup';
@@ -11,15 +12,6 @@ import { TILE_TAPPED, TileSprite } from '../components/TileSprite';
 import { Tray } from '../components/Tray';
 import { ScoreFloater } from '../effects/ScoreFloater';
 import { TilePool } from '../pools/TilePool';
-
-const VALID_THEMES: readonly ThemeId[] = [
-  'zodiac',
-  'traditional',
-  'animals',
-  'oriental',
-  'seasons',
-  'myth',
-];
 
 export interface GameScreenOptions {
   ticker?: Ticker;
@@ -38,14 +30,6 @@ function requireTexture(key: 'bg_game'): Texture {
     throw new Error(`Texture "${key}" has not been loaded`);
   }
   return texture;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isTheme(value: unknown): value is ThemeId {
-  return typeof value === 'string' && VALID_THEMES.includes(value as ThemeId);
 }
 
 export class GameScreen extends Container {
@@ -333,63 +317,6 @@ export class GameScreen extends Container {
   }
 
   private validateLevel(value: unknown): Level {
-    if (!isRecord(value)) {
-      throw new Error('Malformed level: expected object');
-    }
-
-    const stones = value.stones;
-    if (
-      typeof value.id !== 'number' ||
-      typeof value.name !== 'string' ||
-      !isTheme(value.theme) ||
-      typeof value.maxLayer !== 'number' ||
-      !Array.isArray(stones)
-    ) {
-      throw new Error('Malformed level: invalid top-level fields');
-    }
-
-    if (value.maxLayer > 7) {
-      throw new Error(`Malformed level ${value.id}: maxLayer exceeds 7`);
-    }
-
-    if (stones.length > 128) {
-      throw new Error(`Malformed level ${value.id}: too many stones`);
-    }
-
-    const faceCounts = new Map<number, number>();
-    const parsedStones = stones.map((stone, index) => {
-      if (!isRecord(stone)) {
-        throw new Error(`Malformed level ${value.id}: stone ${index} is not an object`);
-      }
-
-      const { z, x, y, face } = stone;
-      if (
-        !Number.isInteger(z) ||
-        !Number.isInteger(x) ||
-        !Number.isInteger(y) ||
-        !Number.isInteger(face) ||
-        z < 0 ||
-        z > value.maxLayer ||
-        face < 0
-      ) {
-        throw new Error(`Malformed level ${value.id}: invalid stone ${index}`);
-      }
-
-      faceCounts.set(face, (faceCounts.get(face) ?? 0) + 1);
-      return { z, x, y, face };
-    });
-
-    const oddFace = Array.from(faceCounts.entries()).find(([, count]) => count % 2 !== 0);
-    if (oddFace) {
-      throw new Error(`Malformed level ${value.id}: odd face count for face ${oddFace[0]}`);
-    }
-
-    return Object.freeze({
-      id: value.id,
-      name: value.name,
-      theme: value.theme,
-      maxLayer: value.maxLayer,
-      stones: parsedStones,
-    });
+    return validatePlayableLevel(value);
   }
 }

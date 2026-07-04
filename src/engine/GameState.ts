@@ -76,6 +76,7 @@ export class GameState {
   private score = 0;
   private maxCombo = 0;
   private startedAt = Date.now();
+  private terminal = false;
 
   constructor(private level: Level) {
     this.board = new BoardModel(level);
@@ -85,11 +86,13 @@ export class GameState {
     const stone = this.getStone(stoneId);
     this.comboTracker.resetIfExpired(timestamp);
 
-    if (!stone || stone.picked || !this.board.isFree(stone)) {
-      this.comboTracker.onBlockedTap();
+    if (this.terminal || !stone || stone.picked || !this.board.isFree(stone) || !this.tray.canAccept(stone)) {
+      if (!this.terminal) {
+        this.comboTracker.onBlockedTap();
+      }
       return this.result({
         ok: false,
-        blocked: true,
+        blocked: !this.terminal,
         matched: false,
         removed: [],
         scoreAwarded: 0,
@@ -99,6 +102,17 @@ export class GameState {
 
     this.board.pick(stone);
     const trayResult = this.tray.add(stone);
+    if (!trayResult.accepted) {
+      return this.result({
+        ok: false,
+        blocked: false,
+        matched: false,
+        removed: [],
+        scoreAwarded: 0,
+        stone,
+      });
+    }
+
     let scoreAwarded = 0;
 
     if (trayResult.matched) {
@@ -108,7 +122,7 @@ export class GameState {
       this.score += scoreAwarded;
     }
 
-    return this.result({
+    const result = this.result({
       ok: true,
       blocked: false,
       matched: trayResult.matched,
@@ -116,6 +130,8 @@ export class GameState {
       scoreAwarded,
       stone,
     });
+    this.terminal = result.failed || result.won;
+    return result;
   }
 
   getLevel(): Level {
@@ -165,6 +181,7 @@ export class GameState {
     this.score = 0;
     this.maxCombo = 0;
     this.startedAt = Date.now();
+    this.terminal = false;
   }
 
   private result(args: {

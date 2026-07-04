@@ -14,7 +14,7 @@ function makeLabel(text: string, x: number): Text {
   const label = new Text({
     text,
     style: {
-      fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+      fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
       fontSize: 28,
       fontWeight: '800',
       fill: 0xfff4d6,

@@ -32,7 +32,7 @@ function makeText(text: string, fontSize: number, fill: number, weight = '700'):
   const label = new Text({
     text,
     style: {
-      fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+      fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
       fontSize,
       fontWeight: weight,
       fill,

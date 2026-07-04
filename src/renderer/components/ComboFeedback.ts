@@ -43,7 +43,7 @@ export class ComboFeedback extends Container {
     const label = new Text({
       text,
       style: {
-        fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize,
         fontWeight: '900',
         fill,

@@ -15,7 +15,7 @@ export class ScoreFloater extends Container {
     const text = new Text({
       text: `+${Math.round(points)}`,
       style: {
-        fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize: 36,
         fontWeight: '900',
         fill: config.colors.accent,

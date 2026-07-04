@@ -77,7 +77,7 @@ export class HomeScreen extends Container {
     const coinLabel = new Text({
       text: 'x0',
       style: {
-        fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize: 32,
         fontWeight: '700',
         fill: 0xfff0b8,

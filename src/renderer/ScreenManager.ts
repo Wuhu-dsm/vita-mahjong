@@ -151,8 +151,25 @@ export class ScreenManager {
 
   private stopTransition(): void {
     if (!this.transition) return;
-    this.app.ticker.remove(this.transition.tick);
+    const transition = this.transition;
+    this.app.ticker.remove(transition.tick);
+
+    if (transition.from) {
+      const from = this.screens[transition.from];
+      from.visible = true;
+      from.alpha = 1;
+      this.transitionScale[transition.from] = 1;
+      this.applyScale(transition.from);
+    }
+
+    const to = this.screens[transition.to];
+    to.visible = false;
+    to.alpha = 0;
+    this.transitionScale[transition.to] = 1;
+    this.applyScale(transition.to);
+
     this.transition = null;
+    transition.onComplete();
   }
 
   private readonly resizeToRenderer = (): void => {

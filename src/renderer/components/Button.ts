@@ -41,7 +41,7 @@ export class Button extends Container {
     this.labelText = new Text({
       text: options.label,
       style: {
-        fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize: options.fontSize ?? 42,
         fontWeight: '800',
         fill: options.textColor ?? 0xfff7d2,

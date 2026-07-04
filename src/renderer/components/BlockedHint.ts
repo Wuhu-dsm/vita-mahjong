@@ -25,7 +25,7 @@ export class BlockedHint extends Container {
     this.text = new Text({
       text: '被左右锁住',
       style: {
-        fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize: 30,
         fontWeight: '800',
         fill: config.colors.destructive,

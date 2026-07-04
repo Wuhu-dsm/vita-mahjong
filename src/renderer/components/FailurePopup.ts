@@ -39,7 +39,7 @@ export class FailurePopup extends Container {
     const heading = new Text({
       text: '没有空位了',
       style: {
-        fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize: 58,
         fontWeight: '900',
         fill: 0xfff4d6,

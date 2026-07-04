@@ -1,6 +1,7 @@
 import type { Stone } from './types';
 
 export interface TrayAddResult {
+  accepted: boolean;
   matched: boolean;
   removed: Stone[];
   full: boolean;
@@ -21,6 +22,7 @@ export class TrayModel {
       this.slots[matchIndex] = null;
 
       return {
+        accepted: true,
         matched: true,
         removed: partner ? [partner, stone] : [stone],
         full: this.isFull(),
@@ -28,15 +30,27 @@ export class TrayModel {
     }
 
     const emptyIndex = this.slots.findIndex((slot) => slot === null);
-    if (emptyIndex !== -1) {
-      this.slots[emptyIndex] = stone;
+    if (emptyIndex === -1) {
+      return {
+        accepted: false,
+        matched: false,
+        removed: [],
+        full: true,
+      };
     }
 
+    this.slots[emptyIndex] = stone;
+
     return {
+      accepted: true,
       matched: false,
       removed: [],
       full: this.isFull(),
     };
+  }
+
+  canAccept(stone: Stone): boolean {
+    return this.slots.some((slot) => slot === null || slot.face === stone.face);
   }
 
   peek(): Array<Stone | null> {

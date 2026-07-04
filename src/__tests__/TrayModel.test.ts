@@ -22,7 +22,7 @@ describe('TrayModel', () => {
     const tray = new TrayModel();
     const result = tray.add(stone('a', 1));
 
-    expect(result).toEqual({ matched: false, removed: [], full: false });
+    expect(result).toEqual({ accepted: true, matched: false, removed: [], full: false });
     expect(tray.peek().map((slot) => slot?.id ?? null)).toEqual(['a', null, null, null]);
   });
 
@@ -60,7 +60,7 @@ describe('TrayModel', () => {
     tray.add(stone('c', 3));
     const result = tray.add(stone('d', 4));
 
-    expect(result).toEqual({ matched: false, removed: [], full: true });
+    expect(result).toEqual({ accepted: true, matched: false, removed: [], full: true });
     expect(tray.isFull()).toBe(true);
   });
 

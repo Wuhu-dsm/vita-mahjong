@@ -4,12 +4,14 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "predev": "npm run generate-assets && npm run generate-levels",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "prebuild": "npm run generate-assets && npm run generate-levels",
     "generate-assets": "tsx tools/generate-assets.ts",
     "generate-levels": "tsx tools/generate-levels.ts",
+    "pretest": "npm run generate-assets && npm run generate-levels",
     "test": "vitest"
   },
   "dependencies": {

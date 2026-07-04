@@ -115,7 +115,7 @@ export class TileSprite extends Container {
     this.symbolText = new Text({
       text: '',
       style: {
-        fontFamily: 'Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize: 50,
         fontWeight: '900',
         fill: FACE_TINTS[0],
