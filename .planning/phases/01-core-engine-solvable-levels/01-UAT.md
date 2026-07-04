@@ -1,17 +1,21 @@
 ---
-status: diagnosed
+status: testing
 phase: 01-core-engine-solvable-levels
 source:
   - 01-VERIFICATION.md
 started: 2026-07-04T19:31:03Z
-updated: 2026-07-04T19:48:58Z
+updated: 2026-07-04T20:29:29Z
 ---
 
 # Phase 01 UAT
 
 ## Current Test
 
-[testing complete]
+number: 3
+name: Blocked-Tile Feedback
+expected: |
+  A blocked tile cannot be selected or removed; the tile briefly dims, the cue fades after roughly 1.2 seconds, only one red-arrow/text cue with "被左右锁住" appears, and adjacent tile faces/tray/HUD remain readable.
+awaiting: user response
 
 ## Tests
 
@@ -28,8 +32,8 @@ result: pass
 ### 3. Blocked-Tile Feedback
 
 expected: A blocked tile cannot be selected and shows dimming, red arrows, and "被左右锁住" without obscuring nearby UI.
-result: issue
-reported: "不通过，阻挡的麻将牌点击后，在一定时间后还是展示的异常态，并且周围的麻将牌有箭头遮挡"
+result: pending
+reported: "Previous issue fixed in code by 01-05; awaiting 20:9 portrait viewport re-test."
 severity: major
 
 ### 4. Win Flow
@@ -46,19 +50,23 @@ result: pass
 
 total: 5
 passed: 4
-issues: 1
-pending: 0
+issues: 0
+pending: 1
 skipped: 0
 blocked: 0
 
 ## Gaps
 
 - truth: "A blocked tile cannot be selected and shows dimming, red arrows, and \"被左右锁住\" without obscuring nearby UI."
-  status: failed
-  reason: "User reported: 不通过，阻挡的麻将牌点击后，在一定时间后还是展示的异常态，并且周围的麻将牌有箭头遮挡"
+  status: pending_retest
+  reason: "Plan 01-05 fixed the stale dimming lifecycle and duplicate persistent arrows; awaiting user re-test in the target 20:9 portrait viewport."
   severity: major
   test: 3
   root_cause: "Blocked-tile feedback has two independent arrow systems and no lifecycle for clearing the TileSprite blocked state. GameScreen sets tile.setBlocked(true) on blocked taps but only BlockedHint has a 1.2s timeout; TileSprite arrows remain visible and are placed outside the tile bounds, so they persist and overlap neighboring tiles."
+  closure_evidence:
+    - "01-05-SUMMARY.md records a timed BlockedFeedbackLifecycle and dim-only TileSprite blocked state."
+    - "npm test -- --run src/__tests__/blocked-feedback.test.ts src/__tests__/GameState.test.ts passed."
+    - "01-VERIFICATION.md reports no blocking implementation gaps and status human_needed."
   artifacts:
     - path: "src/renderer/screens/GameScreen.ts"
       issue: "Blocked tap path calls tile.setBlocked(true) and returns without scheduling a reset for the TileSprite blocked state."
@@ -66,8 +74,6 @@ blocked: 0
       issue: "Tile-local blocked arrows remain visible until an unrelated reset path runs and are positioned outside the tile face where they can cover adjacent tiles."
     - path: "src/renderer/components/BlockedHint.ts"
       issue: "Hint component renders an additional pair of arrows, duplicating TileSprite arrows and increasing clutter."
-  missing:
-    - "Add a timed lifecycle that clears tile-local blocked feedback after the hint duration or next blocked tap."
-    - "Avoid duplicate arrow systems by keeping arrows either in the temporary hint layer or within the tapped tile's visual bounds."
-    - "Add verification for blocked feedback timeout/reset and run mobile/browser UAT for adjacent tile readability."
+  remaining:
+    - "Re-run Phase 01 UAT test 3 in a 20:9 portrait viewport to confirm cue readability and adjacent tile visibility after the code fix."
   debug_session: ".planning/debug/blocked-tile-feedback.md"
