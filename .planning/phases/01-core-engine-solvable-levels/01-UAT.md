@@ -1,21 +1,17 @@
 ---
-status: testing
+status: complete
 phase: 01-core-engine-solvable-levels
 source:
   - 01-VERIFICATION.md
 started: 2026-07-04T19:31:03Z
-updated: 2026-07-04T20:29:29Z
+updated: 2026-07-05T04:30:00Z
 ---
 
 # Phase 01 UAT
 
 ## Current Test
 
-number: 3
-name: Blocked-Tile Feedback
-expected: |
-  A blocked tile cannot be selected or removed; the tile briefly dims, the cue fades after roughly 1.2 seconds, only one red-arrow/text cue with "被左右锁住" appears, and adjacent tile faces/tray/HUD remain readable.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -32,9 +28,7 @@ result: pass
 ### 3. Blocked-Tile Feedback
 
 expected: A blocked tile cannot be selected and shows dimming, red arrows, and "被左右锁住" without obscuring nearby UI.
-result: pending
-reported: "Previous issue fixed in code by 01-05; awaiting 20:9 portrait viewport re-test."
-severity: major
+result: pass
 
 ### 4. Win Flow
 
@@ -49,16 +43,16 @@ result: pass
 ## Summary
 
 total: 5
-passed: 4
+passed: 5
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
 
 - truth: "A blocked tile cannot be selected and shows dimming, red arrows, and \"被左右锁住\" without obscuring nearby UI."
-  status: pending_retest
+  status: passed
   reason: "Plan 01-05 fixed the stale dimming lifecycle and duplicate persistent arrows; awaiting user re-test in the target 20:9 portrait viewport."
   severity: major
   test: 3
