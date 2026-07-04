@@ -3,6 +3,8 @@ import { config } from '../../app/config';
 import { AudioManager } from '../../audio/AudioManager';
 import { Button } from '../components/Button';
 import { Slider } from '../components/Slider';
+import { ConfirmationDialog } from '../components/ConfirmationDialog';
+import { resetLevel } from '../../app/persistence';
 
 export class SettingsScreen extends Container {
   private readonly sfxSlider: Slider;
@@ -13,6 +15,7 @@ export class SettingsScreen extends Container {
   private readonly bgmMuteIndicator: Graphics;
   private readonly sfxMuteLabel: Text;
   private readonly bgmMuteLabel: Text;
+  private readonly resetConfirmDialog: ConfirmationDialog;
 
   constructor(onBack: () => void) {
     super();
@@ -224,6 +227,39 @@ export class SettingsScreen extends Container {
     footer.anchor.set(0.5);
     footer.position.set(config.designWidth / 2, config.designHeight * 0.78);
     this.addChild(footer);
+
+    // ─── Reset Progress ──────────────────────────────────
+    const resetRowY = config.designHeight * 0.72;
+    this.addChild(this.createRowCard(resetRowY));
+
+    const resetButton = new Button({
+      textureKey: 'btn_wooden_capsule',
+      label: '重置进度',
+      width: 380,
+      height: 100,
+      fontSize: 26,
+      textColor: 0xfff7d2,
+      onTap: () => this.resetConfirmDialog.show(),
+    });
+    resetButton.position.set(config.designWidth / 2, resetRowY);
+    this.addChild(resetButton);
+
+    // Confirmation dialog
+    this.resetConfirmDialog = new ConfirmationDialog({
+      heading: '确认重置',
+      body: '确定要重置进度吗？所有关卡记录将被清除。',
+      cancelLabel: '保留进度',
+      confirmLabel: '确认重置',
+      onCancel: () => { /* dialog hides itself in button onTap */ },
+      onConfirm: () => {
+        resetLevel();
+        this.emit('reset-progress');
+      },
+    });
+    this.addChild(this.resetConfirmDialog);
+
+    // Restore UI to match persisted audio settings
+    this.updateFromAudioManager();
   }
 
   updateFromAudioManager(): void {

@@ -5,6 +5,8 @@ interface BgmNote {
   duration: number;
 }
 
+import { loadAudio, saveAudio } from '../app/persistence';
+
 export class AudioManager {
   private static instance: AudioManager;
 
@@ -16,6 +18,7 @@ export class AudioManager {
   private sfxVolume: number = 0.7;
   private bgmVolume: number = 0.4;
   private initialized: boolean = false;
+  private saveAudioTimer: ReturnType<typeof setTimeout> | null = null;
   private bgmPlaying: boolean = false;
   private bgmTimer: ReturnType<typeof setInterval> | null = null;
   private bgmOscillators: OscillatorNode[] = [];
@@ -77,6 +80,18 @@ export class AudioManager {
     return AudioManager.instance;
   }
 
+  private scheduleSaveAudio(): void {
+    if (this.saveAudioTimer) clearTimeout(this.saveAudioTimer);
+    this.saveAudioTimer = setTimeout(() => {
+      saveAudio({
+        sfxVolume: this.sfxVolume,
+        bgmVolume: this.bgmVolume,
+        sfxMuted: this.sfxMuted,
+        bgmMuted: this.bgmMuted,
+      });
+    }, 200);
+  }
+
   async init(): Promise<void> {
     if (this.initialized) return;
 
@@ -95,6 +110,13 @@ export class AudioManager {
     }
 
     this.initialized = true;
+
+    // Restore saved audio settings from localStorage
+    const saved = loadAudio();
+    this.setSfxVolume(saved.sfxVolume);
+    this.setBgmVolume(saved.bgmVolume);
+    this.setSfxMuted(saved.sfxMuted);
+    this.setBgmMuted(saved.bgmMuted);
   }
 
   playSfx(type: SfxType): void {
@@ -319,6 +341,7 @@ export class AudioManager {
     if (this.sfxGain && !this.sfxMuted) {
       this.sfxGain.gain.value = clamped;
     }
+    this.scheduleSaveAudio();
   }
 
   setBgmVolume(v: number): void {
@@ -327,18 +350,21 @@ export class AudioManager {
     if (this.bgmGain && !this.bgmMuted) {
       this.bgmGain.gain.value = clamped;
     }
+    this.scheduleSaveAudio();
   }
 
   setSfxMuted(m: boolean): void {
     this.sfxMuted = m;
     if (!this.sfxGain) return;
     this.sfxGain.gain.value = m ? 0 : this.sfxVolume;
+    this.scheduleSaveAudio();
   }
 
   setBgmMuted(m: boolean): void {
     this.bgmMuted = m;
     if (!this.bgmGain) return;
     this.bgmGain.gain.value = m ? 0 : this.bgmVolume;
+    this.scheduleSaveAudio();
   }
 
   getSfxVolume(): number {

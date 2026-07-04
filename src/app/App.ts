@@ -52,6 +52,13 @@ export async function createApp(): Promise<Application> {
   screenManager.setContent('result', resultScreen);
   screenManager.setContent('settings', settingsScreen);
 
+  // Wire reset-progress event: clear currentLevel → 1, persist, update UI
+  settingsScreen.on('reset-progress', () => {
+    currentLevel = 1;
+    saveLevel(1);
+    updateHomeLevelLabel();
+  });
+
   function updateHomeLevelLabel(): void {
     homeScreen.setLevel(currentLevel);
   }
