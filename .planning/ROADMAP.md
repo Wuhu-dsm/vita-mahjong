@@ -76,15 +76,22 @@ Plans:
 
   - Hint/shuffle must remain solution-aware to avoid dead-ends; reuse Solver from Phase 1.
   - Accessibility targets (≥10–12 mm physical tile width, WCAG contrast) need validation on real devices.
-  - Relaxed mode must suppress combo decay and time multipliers, not just hide the timer.
+  - Low-pressure mode REMOVED per D-03 (user decision in CONTEXT.md). Timer and score always visible.
+  - Shuffle does not guarantee post-shuffle solvability per RESEARCH.md A4 — deadlock detection handles this.
 
 **UI hint**: yes
 
 Plans:
 
-- [ ] 02-01: Build home screen, level-select grid, game HUD, and result screen flow
-- [ ] 02-02: Implement Oriental classical theme, large/high-contrast tile set, selection/blocked highlights, and low-pressure mode
-- [ ] 02-03: Add one-tap undo/hint/shuffle, audio manager with SFX/music/mute, and accessibility verification
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Screen flow, navigation, tile layout grid parameters, HUD timer, dynamic level button
+- *(02-01 modifies ScreenManager, HomeScreen, GameScreen, HUD, App — sets foundation for Waves 2)*
+
+**Wave 2** *(parallel execution: 02-02 and 02-03 both depend on 02-01)*
+
+- [ ] 02-02-PLAN.md — Assist controls: undo (3x), hint (3x via Solver), shuffle (1x) with count-limited AssistBar
+- [ ] 02-03-PLAN.md — Audio system (Web Audio API SFX + pentatonic BGM) + Settings screen with volume/mute controls
 
 ### Phase 3: Polish, Persistence & Distribution
 

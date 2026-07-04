@@ -28,7 +28,7 @@
 - [ ] **ACCS-02**: Tile faces use high-contrast symbols with clear, readable fonts
 - [x] **ACCS-03**: Selected and blocked tiles are visually highlighted
 - [ ] **ACCS-04**: Game supports one-tap undo, hint, and shuffle controls
-- [ ] **ACCS-05**: Low-pressure mode can be toggled to hide timer and score pressure
+- [~] **ACCS-05**: Low-pressure mode can be toggled to hide timer and score pressure *(REMOVED per Phase 2 D-03 — user decided no low-pressure mode; timer and score always visible)*
 
 ### Visuals & Animation
 
@@ -104,7 +104,7 @@
 | ACCS-02 | Phase 2 | Pending |
 | ACCS-03 | Phase 1 | Complete |
 | ACCS-04 | Phase 2 | Pending |
-| ACCS-05 | Phase 2 | Pending |
+| ACCS-05 | Phase 2 | Removed (D-03) |
 | VISL-01 | Phase 2 | Pending |
 | VISL-02 | Phase 2 | Pending |
 | VISL-03 | Phase 3 | Pending |
