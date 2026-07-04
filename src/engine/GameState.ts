@@ -1,6 +1,9 @@
 import { BoardModel } from './BoardModel';
 import { TrayModel } from './TrayModel';
+import { Solver } from './Solver';
+import { buildNeighbors } from './isBlocked';
 import type { Level, Stone } from './types';
+import { config } from '../app/config';
 
 export function matchScore(combo: number): number {
   return 100 * (1 + Math.min(combo - 1, 9) * 0.2);
@@ -77,6 +80,10 @@ export class GameState {
   private maxCombo = 0;
   private startedAt = Date.now();
   private terminal = false;
+  private readonly actionHistory: Array<{ stoneIds: [string, string]; face: number; trayIndices: [number, number] }> = [];
+  private undoCount = config.assist.undoLimit;
+  private hintCount = config.assist.hintLimit;
+  private shuffleCount = config.assist.shuffleLimit;
 
   constructor(private level: Level) {
     this.board = new BoardModel(level);
@@ -101,6 +108,7 @@ export class GameState {
     }
 
     this.board.pick(stone);
+    const preTray = this.tray.peek();
     const trayResult = this.tray.add(stone);
     if (!trayResult.accepted) {
       return this.result({
@@ -120,6 +128,20 @@ export class GameState {
       this.maxCombo = Math.max(this.maxCombo, combo);
       scoreAwarded = matchScore(combo);
       this.score += scoreAwarded;
+
+      // Record undo entry (partner was in tray, incoming stone was on board)
+      const partnerIndex = preTray.findIndex((s) => s !== null && s.face === stone.face);
+      const partner = partnerIndex !== -1 ? preTray[partnerIndex] : null;
+      if (partner) {
+        this.actionHistory.push({
+          stoneIds: [partner.id, stone.id],
+          face: stone.face,
+          trayIndices: [partnerIndex, -1],
+        });
+        if (this.actionHistory.length > this.undoCount) {
+          this.actionHistory.shift(); // FIFO — keep only last N
+        }
+      }
     }
 
     const result = this.result({
@@ -167,6 +189,47 @@ export class GameState {
     return this.terminal;
   }
 
+  undo(): boolean {
+    if (this.undoCount <= 0 || this.actionHistory.length === 0) return false;
+    const entry = this.actionHistory.pop()!;
+    const stone1 = this.getStone(entry.stoneIds[0]);
+    const stone2 = this.getStone(entry.stoneIds[1]);
+    if (!stone1 || !stone2) return false;
+
+    // Restore both stones to board
+    this.board.restore(stone1);
+    this.board.restore(stone2);
+    buildNeighbors(this.board.getStones());
+
+    // Restore partner to its tray slot
+    const partnerIndex = entry.trayIndices[0];
+    if (partnerIndex >= 0) {
+      this.tray.restoreAt(partnerIndex, stone1);
+    }
+
+    this.undoCount--;
+    return true;
+  }
+
+  hint(): { stoneId: string; partnerId: string } | null {
+    if (this.hintCount <= 0) return null;
+    const pair = Solver.findHintPair(this.board.getStones());
+    if (!pair) return null; // deadlocked — do not consume
+    this.hintCount--;
+    return { stoneId: pair[0], partnerId: pair[1] };
+  }
+
+  shuffle(): boolean {
+    if (this.shuffleCount <= 0) return false;
+    this.board.shuffle();
+    this.shuffleCount--;
+    return true;
+  }
+
+  getUndoCount(): number { return this.undoCount; }
+  getHintCount(): number { return this.hintCount; }
+  getShuffleCount(): number { return this.shuffleCount; }
+
   getStats(): GameStats {
     return {
       level: this.level.id,
@@ -186,6 +249,10 @@ export class GameState {
     this.maxCombo = 0;
     this.startedAt = Date.now();
     this.terminal = false;
+    this.actionHistory.length = 0;
+    this.undoCount = config.assist.undoLimit;
+    this.hintCount = config.assist.hintLimit;
+    this.shuffleCount = config.assist.shuffleLimit;
   }
 
   private result(args: {

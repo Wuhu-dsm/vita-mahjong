@@ -60,4 +60,17 @@ export class TrayModel {
   isFull(): boolean {
     return this.slots.every((slot) => slot !== null);
   }
+
+  clearSlot(index: number): void {
+    if (index >= 0 && index < this.slots.length) {
+      this.slots[index] = null;
+    }
+  }
+
+  /** Restore a stone back to a specific slot (used for undo). */
+  restoreAt(index: number, stone: Stone): void {
+    if (index >= 0 && index < this.slots.length) {
+      this.slots[index] = stone;
+    }
+  }
 }

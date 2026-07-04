@@ -21,6 +21,10 @@ function stoneOrder(a: Stone, b: Stone): number {
   return a.z - b.z || a.y - b.y || a.x - b.x;
 }
 
+function isFree(stone: Stone): boolean {
+  return !stone.picked && !isBlocked(stone);
+}
+
 function stateKey(stones: Stone[], tray: number[]): string {
   const picked = stones.map((stone) => (stone.picked ? '1' : '0')).join('');
   const trayFaces = [...tray].sort((a, b) => a - b).join(',');
@@ -29,6 +33,22 @@ function stateKey(stones: Stone[], tray: number[]): string {
 }
 
 export class Solver {
+  /**
+   * Finds the first matching free pair for the hint feature.
+   * Simple O(n²) scan — returns the first pair found, not the optimal one.
+   */
+  static findHintPair(stones: Stone[]): [string, string] | null {
+    const free = stones.filter((s) => isFree(s));
+    for (let i = 0; i < free.length; i++) {
+      for (let j = i + 1; j < free.length; j++) {
+        if (free[i].face === free[j].face) {
+          return [free[i].id, free[j].id];
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Verifies that a level can be cleared using the 4-slot tray.
    */

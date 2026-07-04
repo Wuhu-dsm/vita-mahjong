@@ -35,6 +35,11 @@ export const config = {
     blockedShakeMs: 200,
     blockedFeedbackMs: 1200,
   },
+  assist: {
+    undoLimit: 3,
+    hintLimit: 3,
+    shuffleLimit: 1,
+  },
 };
 
 export type Config = typeof config;
