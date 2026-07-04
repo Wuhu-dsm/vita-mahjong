@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { Solver } from '../engine/Solver';
+import type { Level, LevelLayout, ThemeId } from '../engine/types';
 import { LayoutBuilder, THEME_FACE_SETS } from '../generator/LayoutBuilder';
+import { DEFAULT_SEED, createSeededRng, SolvableDealer } from '../generator/SolvableDealer';
 
 const EXPECTED_TILE_COUNTS = new Map<number, number>([
   [1, 24],
@@ -85,5 +88,76 @@ describe('LayoutBuilder', () => {
         expect(Number.isInteger(y)).toBe(true);
       }
     }
+  });
+});
+
+function facePairsFor(theme: ThemeId, pairCount: number): number[] {
+  const faceIds = THEME_FACE_SETS[theme].faceIds;
+
+  return Array.from({ length: pairCount }, (_, index) => faceIds[index % faceIds.length]);
+}
+
+function countFaces(level: Level): Map<number, number> {
+  const counts = new Map<number, number>();
+
+  for (const stone of level.stones) {
+    counts.set(stone.face, (counts.get(stone.face) ?? 0) + 1);
+  }
+
+  return counts;
+}
+
+describe('SolvableDealer', () => {
+  it('assigns every face in even-count pairs', () => {
+    const layout = LayoutBuilder.get(1);
+    const level = SolvableDealer.deal(
+      layout,
+      facePairsFor(layout.theme, layout.positions.length / 2),
+      createSeededRng(DEFAULT_SEED),
+    );
+
+    for (const count of countFaces(level).values()) {
+      expect(count % 2).toBe(0);
+    }
+  });
+
+  it('generates a solvable level 1 board', () => {
+    const layout = LayoutBuilder.get(1);
+    const level = SolvableDealer.deal(
+      layout,
+      facePairsFor(layout.theme, layout.positions.length / 2),
+      createSeededRng(DEFAULT_SEED),
+    );
+
+    expect(level.stones).toHaveLength(24);
+    expect(Solver.isSolvable(level)).toBe(true);
+  });
+
+  it('produces identical assignments for the same seed', () => {
+    const layout = LayoutBuilder.get(3);
+    const faces = facePairsFor(layout.theme, layout.positions.length / 2);
+    const first = SolvableDealer.deal(layout, faces, createSeededRng(DEFAULT_SEED));
+    const second = SolvableDealer.deal(layout, faces, createSeededRng(DEFAULT_SEED));
+
+    expect(first.stones.map((stone) => stone.face)).toEqual(
+      second.stones.map((stone) => stone.face),
+    );
+  });
+
+  it('throws a descriptive error when a layout has fewer than two free stones', () => {
+    const layout: LevelLayout = {
+      id: 99,
+      name: 'Dead End',
+      theme: 'zodiac',
+      positions: [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      maxLayer: 1,
+    };
+
+    expect(() =>
+      SolvableDealer.deal(layout, [1], createSeededRng(DEFAULT_SEED)),
+    ).toThrow(/Dead End.*fewer than two free stones/);
   });
 });
