@@ -41,14 +41,20 @@ export class BlockedHint extends Container {
     this.position.set(x, y);
     this.alpha = 1;
     this.visible = true;
-    this.visibleUntil = now + 1200;
+    this.visibleUntil = now + config.timings.blockedFeedbackMs;
+  }
+
+  hide(): void {
+    this.visible = false;
+    this.alpha = 0;
+    this.visibleUntil = 0;
   }
 
   update(now = performance.now()): void {
     if (!this.visible) return;
     const remaining = this.visibleUntil - now;
     if (remaining <= 0) {
-      this.visible = false;
+      this.hide();
       return;
     }
     this.alpha = Math.min(1, remaining / 300);

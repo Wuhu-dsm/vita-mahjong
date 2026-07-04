@@ -33,6 +33,7 @@ export const config = {
     tileFlightMs: 250,
     comboTimeoutMs: 3000,
     blockedShakeMs: 200,
+    blockedFeedbackMs: 1200,
   },
 };
 

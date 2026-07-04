@@ -24,6 +24,35 @@ interface Animation {
   complete: () => void;
 }
 
+export interface BlockedFeedbackTarget {
+  setBlocked(enabled: boolean): void;
+}
+
+export class BlockedFeedbackLifecycle<T extends BlockedFeedbackTarget = BlockedFeedbackTarget> {
+  private current: T | null = null;
+  private expiresAt = 0;
+
+  show(target: T, now: number, durationMs: number): void {
+    this.clear();
+    this.current = target;
+    this.expiresAt = now + durationMs;
+    target.setBlocked(true);
+  }
+
+  update(now: number): void {
+    if (this.current && now >= this.expiresAt) {
+      this.clear();
+    }
+  }
+
+  clear(): void {
+    if (!this.current) return;
+    this.current.setBlocked(false);
+    this.current = null;
+    this.expiresAt = 0;
+  }
+}
+
 function requireTexture(key: 'bg_game'): Texture {
   const texture = Assets.get<Texture>(key);
   if (!texture) {
@@ -48,12 +77,15 @@ export class GameScreen extends Container {
   private readonly tilePool = new TilePool();
   private readonly tileByStoneId = new Map<string, TileSprite>();
   private readonly animations: Animation[] = [];
+  private readonly blockedFeedback = new BlockedFeedbackLifecycle<TileSprite>();
   private readonly ticker?: Ticker;
   private state: GameState | null = null;
   private level: Level | null = null;
   private inputLocked = false;
   private readonly tick = (ticker: Ticker): void => {
-    this.blockedHint.update();
+    const now = performance.now();
+    this.blockedFeedback.update(now);
+    this.blockedHint.update(now);
     this.comboFeedback.update(ticker);
     this.scoreFloater.update(ticker);
     this.updateAnimations(ticker);
@@ -102,6 +134,7 @@ export class GameScreen extends Container {
   }
 
   loadLevelModel(level: Level): void {
+    this.clearBlockedFeedback();
     this.level = this.validateLevel(level);
     this.state = new GameState(this.level);
     this.failurePopup.hide();
@@ -126,6 +159,7 @@ export class GameScreen extends Container {
   private renderBoard(): void {
     if (!this.state || !this.level) return;
 
+    this.clearBlockedFeedback();
     this.tilePool.freeAll();
     this.tileByStoneId.clear();
 
@@ -169,19 +203,25 @@ export class GameScreen extends Container {
     this.updateHud();
 
     if (!result.ok || result.blocked || !result.stone) {
-      tile.setBlocked(true);
-      this.blockedHint.showAt(tile.x, tile.y - config.tile.height * 0.85);
+      const now = performance.now();
+      this.blockedFeedback.show(tile, now, config.timings.blockedFeedbackMs);
+      this.blockedHint.showAt(tile.x, tile.y - config.tile.height * 0.85, now);
       this.emit(GameScreen.BLOCKED_TILE, result.stone);
       return;
     }
 
     this.inputLocked = true;
+    this.clearBlockedFeedback();
     this.tileByStoneId.forEach((candidate) => candidate.highlight(false));
-    tile.setBlocked(false);
     tile.highlight(true);
     this.emit(GameScreen.TILE_TAPPED, result.stone);
     this.animateTileToTray(tile, targetSlotIndex, result);
   };
+
+  private clearBlockedFeedback(): void {
+    this.blockedFeedback.clear();
+    this.blockedHint.hide();
+  }
 
   private animateTileToTray(tile: TileSprite, targetSlotIndex: number, result: GameTapResult): void {
     const target = this.tray.getSlotCenter(targetSlotIndex);
