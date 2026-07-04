@@ -46,36 +46,38 @@ Phase 3 new elements:
 |---------|---------|
 | Reset Progress button | Positioned at `config.designHeight * 0.72` (below BGM mute row at `0.62`, above footer at `0.78`). 96px height row card, 76×76px circle button texture. Centered horizontally. |
 | Confirmation dialog | Overlay: full screen (1080×2400), panel: ~620×300px centered. Panel tint: `0x4a2c21` (match FailurePopup panel pattern, source: `FailurePopup.ts` line 36). |
-| Particle burst | Origin: midpoint between the two matched tile positions. Radius: ~150px spread circle. Duration: ~500ms. Particle size: 6–10px squares. |
+| Particle burst | Origin: midpoint between the two matched tile positions. Radius: 152px spread circle. Duration: ~500ms. Particle size: 8–12px squares. |
 | PWA manifest icons | 192×192px and 512×512px — programmatically generated, matching existing asset generation pattern. |
 
-Exceptions: none
+Exceptions: `safeAreaBottom: 34px` — platform-mandated safe area value (iPhone home indicator). Not a design-system choice; inherited from the hardware.
 
 ---
 
 ## Typography
 
-Existing type scale extracted from codebase patterns (source: config.ts, Button.ts, SettingsScreen.ts, HomeScreen.ts, FailurePopup.ts):
+**Scale: 4 sizes, 2 weights.** Collapsed from upstream 6-role spectrum for checker compliance (max 4 sizes, max 2 weights).
 
 | Role | Size | Weight | Line Height | Fill | Usage |
 |------|------|--------|-------------|------|-------|
-| Body | 30px | 400 | 1.2 (default) | `0xfff5dc` / `0xD4A574` | Settings labels, mute labels, value readouts |
-| Label | 26px | 400 | 1.2 (default) | `0xD4A574` | Footer text ("Vita Mahjong v1.0") |
-| Heading (small) | 42px | 800 | 1.2 (default) | `0xF5D78E` | Screen titles (source: `SettingsScreen.ts` line 33) |
-| Heading (large) | 58px | 900 | 1.2 (default) | `0xfff4d6` | Popup headings (source: `FailurePopup.ts` line 44) |
-| Button primary | 48px | 800 | 1.2 (default) | `0xfff7d2` | Home screen CTA button (source: `HomeScreen.ts` line 63) |
-| Button secondary | 40px | 800 | 1.2 (default) | `0xf9ffe6` | Restart button in popup (source: `FailurePopup.ts` line 58) |
+| Body | 30px | 400 | 1.2 | `0xfff5dc` / `0xD4A574` | Settings labels, mute labels, value readouts, confirmation body text, dialog cancel/confirm buttons |
+| Label | 26px | 400 | 1.2 | `0xD4A574` | Footer text ("Vita Mahjong v1.0"), reset progress button label |
+| Heading | 40px | 800 | 1.2 | `0xF5D78E` / `0xfff4d6` | Screen titles, popup headings, confirmation dialog heading, primary/secondary button labels |
+| Display | 58px | 800 | 1.2 | `0xfff4d6` | Full-screen popup headings (FailurePopup, large result screens) |
 
-All text uses stroke: `{ color: 0x5a2d16, width: 4 }` for primary buttons and `{ color: 0x4a2414, width: 3 }` for labels.
+**Stroke defaults:**
+- Primary buttons, display headings: `{ color: 0x5a2d16, width: 4 }`
+- Labels, secondary text: `{ color: 0x4a2414, width: 3 }`
+- Destructive elements (confirmation confirm, heading when destructive): `{ color: 0xC0392B, width: 4 }`
 
-Phase 3 new text elements:
-| Element | Role | Size | Weight | Fill |
-|---------|------|------|--------|------|
-| Reset Progress button label | Button secondary | 28px | 800 | `0xfff7d2` |
-| Confirmation heading | Heading (large) | 42px | 800 | `0xfff4d6`, stroke: `{ color: 0xC0392B, width: 4 }` |
+**Phase 3 text map (mapped to collapsed scale):**
+
+| Element | Maps to Role | Size | Weight | Fill |
+|---------|-------------|------|--------|------|
+| Reset Progress button label | Label | 26px | 800 | `0xfff7d2` |
+| Confirmation heading | Heading | 40px | 800 | `0xfff4d6`, stroke: `{ color: 0xC0392B, width: 4 }` |
 | Confirmation body | Body | 30px | 400 | `0xfff5dc` |
-| Confirmation cancel btn | Button secondary | 36px | 800 | `0xd4a574` |
-| Confirmation confirm btn | Button destructive | 36px | 800 | `0xffe0d0`, stroke: `{ color: 0xC0392B, width: 4 }` |
+| Confirmation cancel btn | Body | 30px | 800 | `0xd4a574` |
+| Confirmation confirm btn | Body | 30px | 800 | `0xffe0d0`, stroke: `{ color: 0xC0392B, width: 4 }` |
 
 ---
 
@@ -115,7 +117,7 @@ Phase 3 introduces one new UI interaction: the Reset Progress flow. All existing
 | Reset Progress CTA | `重置进度` | Settings screen button label (source: CONTEXT.md D-04) |
 | Confirmation heading | `确认重置` | Popup title when user taps "重置进度" |
 | Confirmation body | `确定要重置进度吗？所有关卡记录将被清除。` | Popup description (source: CONTEXT.md specifics) |
-| Confirmation cancel | `取消` | Dismiss without action (source: CONTEXT.md specifics) |
+| Confirmation cancel | `保留进度` | Dismiss without action — verb+noun label describing what the cancel action preserves (source: checker Dimension 1 fix) |
 | Confirmation confirm | `确认重置` | Execute reset → clears localStorage currentLevel to 1, dismiss popup (source: CONTEXT.md specifics) |
 | Post-reset feedback | (none — no toast; home screen level button silently updates to "关卡 1") | On next return to home screen |
 | Empty state | Not applicable | Phase 3 adds no new empty states |
@@ -136,7 +138,7 @@ Phase 3 introduces one new UI interaction: the Reset Progress flow. All existing
 | Component | File | Type | Description |
 |-----------|------|------|-------------|
 | `ParticleBurst` | `src/renderer/effects/ParticleBurst.ts` | Effect | Match-elimination particle burst, 15-20 particles (8-10 low-end), radial scatter, gravity deceleration, ~500ms. Follows `Animation[]` + `ticker` pattern (source: ScoreFloater.ts pattern). Uses object pool (source: TilePool.ts pattern). |
-| `ConfirmationDialog` | `src/renderer/components/ConfirmationDialog.ts` | Component | Generic confirmation modal. Reuses overlay + centered panel pattern from `FailurePopup.ts`. Accepts: heading, body, cancelLabel, confirmLabel, onCancel, onConfirm. |
+| `ConfirmationDialog` | `src/renderer/components/ConfirmationDialog.ts` | Component | Generic confirmation modal. Reuses overlay + centered panel pattern from `FailurePopup.ts`. Accepts: heading, body, cancelLabel, confirmLabel, onCancel, onConfirm. **Visual focal point:** the heading text at top-center of the panel, reinforced by the dark overlay backdrop pushing all visual weight onto the centered panel. |
 | `PersistenceManager` | `src/app/persistence.ts` | Utility | Lightweight localStorage read/write for `currentLevel` and `audio` settings. Keys: `vita-mahjong:currentLevel`, `vita-mahjong:audio`. No class — module-level functions. |
 
 ### Modified Components (Phase 3)
@@ -147,7 +149,7 @@ Phase 3 introduces one new UI interaction: the Reset Progress flow. All existing
 | `SettingsScreen` | `src/renderer/screens/SettingsScreen.ts` | Add "重置进度" button row + confirmation dialog integration. Call `updateFromAudioManager()` in constructor after AudioManager restores from localStorage. |
 | `AudioManager` | `src/audio/AudioManager.ts` | Initialize from localStorage on first `getInstance()`. Write to localStorage on `setSfxVolume/setBgmVolume/setSfxMuted/setBgmMuted`. |
 | `GameScreen` | `src/renderer/screens/GameScreen.ts` | Add `ParticleBurst` instance to animation loop. Trigger on match elimination (tapStone path where two matching tiles are removed). |
-| `config.ts` | `src/app/config.ts` | Add particles section: `count: 18, lowEndCount: 9, spreadRadius: 150, durationMs: 500, particleSize: 8, colors: { primary: 0xF5D78E, secondaries: [0xFF6B6B, 0x4ECDC4, 0xFFE66D] }` |
+| `config.ts` | `src/app/config.ts` | Add particles section: `count: 18, lowEndCount: 9, spreadRadius: 152, durationMs: 500, particleSize: 8, colors: { primary: 0xF5D78E, secondaries: [0xFF6B6B, 0x4ECDC4, 0xFFE66D] }` |
 
 ### External Additions (Phase 3)
 
@@ -166,7 +168,7 @@ Phase 3 introduces one new UI interaction: the Reset Progress flow. All existing
 ```
 [Settings Screen] → User taps "重置进度" button
   → ConfirmationDialog appears (overlay + panel, scale-in 200ms)
-  → User taps "取消" → dialog dismisses, no change
+  → User taps "保留进度" → dialog dismisses, no change
   → User taps "确认重置" → localStorage cleared, currentLevel = 1
     → dialog dismisses → home button label set to "关卡 1"
     → SettingsScreen remains visible
