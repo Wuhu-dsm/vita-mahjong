@@ -339,16 +339,16 @@ function iconMenu(): Canvas {
 }
 
 function tileFace(): Canvas {
-  const image = canvas(227, 120);
-  roundedRect(image, 4, 6, 219, 110, 20, hex('#D6D2C8'));
-  roundedRect(image, 0, 0, 219, 108, 18, hex(palette.tileFace));
-  roundedRect(image, 15, 13, 189, 25, 12, hex(palette.white, 110));
-  strokeRoundedRect(image, 9, 9, 201, 90, 14, 4, hex(palette.secondary, 160));
+  const image = canvas(120, 227);
+  roundedRect(image, 4, 6, 112, 217, 20, hex('#D6D2C8'));
+  roundedRect(image, 0, 0, 112, 215, 18, hex(palette.tileFace));
+  roundedRect(image, 13, 15, 25, 189, 12, hex(palette.white, 110));
+  strokeRoundedRect(image, 9, 9, 90, 201, 14, 4, hex(palette.secondary, 160));
   return image;
 }
 
 function tileSide(): Canvas {
-  const image = canvas(227, 30, hex(palette.tileSide));
+  const image = canvas(120, 30, hex(palette.tileSide));
   gradient(image, hex('#3BA66A'), hex('#1D6E43'));
   rect(image, 0, 0, image.width, 4, hex(palette.white, 45));
   return image;
@@ -410,6 +410,16 @@ function logo(): Canvas {
   return image;
 }
 
+function iconApp(size: number): Canvas {
+  const image = canvas(size, size, hex(palette.gameBg));
+  const center = size / 2;
+  const tileW = size * 0.35;
+  const tileH = tileW * 1.9;
+  roundedRect(image, center - tileW / 2, center - tileH * 0.4, tileW, tileH, tileW * 0.15, hex(palette.tileFace));
+  roundedRect(image, center - tileW / 2, center + tileH * 0.3, tileW, tileH * 0.22, tileW * 0.08, hex(palette.tileSide));
+  return image;
+}
+
 function generateAssets(): void {
   mkdirSync(TEXTURE_DIR, { recursive: true });
 
@@ -429,6 +439,10 @@ function generateAssets(): void {
   save('deco_ring', decoRing());
   save('deco_lotus', decoLotus());
   save('logo_vita_mahjong', logo());
+
+  // PWA app icons
+  save('../../icons/icon-192', iconApp(192));
+  save('../../icons/icon-512', iconApp(512));
 }
 
 generateAssets();
