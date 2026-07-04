@@ -74,8 +74,6 @@ export class TileSprite extends Container {
 
   private readonly haloSprite: Sprite;
   private readonly symbolText: Text;
-  private readonly leftArrow: Sprite;
-  private readonly rightArrow: Sprite;
   private stoneId: string | null = null;
   private faceId: number | null = null;
 
@@ -126,10 +124,6 @@ export class TileSprite extends Container {
     this.symbolText.position.set(0, -4);
     this.addChild(this.symbolText);
 
-    this.leftArrow = this.createBlockedArrow(-config.tile.width / 2 - 18, 0, 0);
-    this.rightArrow = this.createBlockedArrow(config.tile.width / 2 + 18, 0, Math.PI);
-    this.addChild(this.leftArrow, this.rightArrow);
-
     this.eventMode = 'static';
     this.cursor = 'pointer';
     this.hitArea = new Rectangle(
@@ -178,8 +172,6 @@ export class TileSprite extends Container {
   setBlocked(enabled: boolean): void {
     this.faceSprite.alpha = enabled ? 0.56 : 1;
     this.symbolText.alpha = enabled ? 0.42 : 1;
-    this.leftArrow.visible = enabled;
-    this.rightArrow.visible = enabled;
   }
 
   resetForPool(): void {
@@ -194,14 +186,4 @@ export class TileSprite extends Container {
     this.removeAllListeners(TILE_TAPPED);
   }
 
-  private createBlockedArrow(x: number, y: number, rotation: number): Sprite {
-    const arrow = new Sprite(requireTexture('tile_blocked_arrow'));
-    arrow.anchor.set(0.5);
-    arrow.position.set(x, y);
-    arrow.rotation = rotation;
-    arrow.width = 54;
-    arrow.height = 54 * (arrow.texture.height / arrow.texture.width);
-    arrow.visible = false;
-    return arrow;
-  }
 }

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { config } from '../app/config';
 import { BlockedFeedbackLifecycle, type BlockedFeedbackTarget } from '../renderer/screens/GameScreen';
@@ -55,5 +56,25 @@ describe('blocked tile feedback lifecycle', () => {
 
     expect(tile.states).toEqual([true, false]);
     expect(tile.blocked).toBe(false);
+  });
+});
+
+describe('blocked tile visual cue ownership', () => {
+  it('keeps TileSprite blocked state dim-only with no persistent local arrows', () => {
+    const source = readFileSync(new URL('../renderer/components/TileSprite.ts', import.meta.url), 'utf8');
+
+    expect(source).toContain('faceSprite.alpha = enabled ? 0.56 : 1');
+    expect(source).toContain('symbolText.alpha = enabled ? 0.42 : 1');
+    expect(source).not.toMatch(/leftArrow|rightArrow|createBlockedArrow|tile_blocked_arrow/);
+  });
+
+  it('keeps BlockedHint as the compact arrow and text cue', () => {
+    const source = readFileSync(new URL('../renderer/components/BlockedHint.ts', import.meta.url), 'utf8');
+
+    expect(source).toContain('被左右锁住');
+    expect(source).toContain('HINT_ARROW_OFFSET_X = 104');
+    expect(source).toContain('HINT_ARROW_WIDTH = 34');
+    expect(source).not.toContain('createArrow(-132');
+    expect(source).not.toContain('arrow.width = 62');
   });
 });

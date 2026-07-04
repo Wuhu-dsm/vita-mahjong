@@ -204,8 +204,9 @@ export class GameScreen extends Container {
 
     if (!result.ok || result.blocked || !result.stone) {
       const now = performance.now();
+      const hintPosition = this.getBlockedHintPosition(tile);
       this.blockedFeedback.show(tile, now, config.timings.blockedFeedbackMs);
-      this.blockedHint.showAt(tile.x, tile.y - config.tile.height * 0.85, now);
+      this.blockedHint.showAt(hintPosition.x, hintPosition.y, now);
       this.emit(GameScreen.BLOCKED_TILE, result.stone);
       return;
     }
@@ -221,6 +222,33 @@ export class GameScreen extends Container {
   private clearBlockedFeedback(): void {
     this.blockedFeedback.clear();
     this.blockedHint.hide();
+  }
+
+  private getBlockedHintPosition(tile: TileSprite): { x: number; y: number } {
+    const boardScale = this.boardLayer.scale.x || 1;
+    const rawCanvasX = this.boardLayer.x + tile.x * boardScale;
+    const rawCanvasY = this.boardLayer.y + (tile.y - config.tile.height * 0.72) * boardScale;
+    const hintHalfWidth = 128;
+    const hintHalfHeight = 42;
+    const trayBottom = config.designHeight * 0.14 + config.tray.height / 2;
+    const minCanvasX = hintHalfWidth;
+    const maxCanvasX = config.designWidth - hintHalfWidth;
+    const minCanvasY = Math.max(
+      config.safeAreaTop + config.hud.height + hintHalfHeight,
+      trayBottom + hintHalfHeight + 20,
+    );
+    const maxCanvasY = config.designHeight - config.safeAreaBottom - hintHalfHeight;
+    const clampedCanvasX = this.clamp(rawCanvasX, minCanvasX, maxCanvasX);
+    const clampedCanvasY = this.clamp(rawCanvasY, minCanvasY, maxCanvasY);
+
+    return {
+      x: (clampedCanvasX - this.boardLayer.x) / boardScale,
+      y: (clampedCanvasY - this.boardLayer.y) / boardScale,
+    };
+  }
+
+  private clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
   }
 
   private animateTileToTray(tile: TileSprite, targetSlotIndex: number, result: GameTapResult): void {

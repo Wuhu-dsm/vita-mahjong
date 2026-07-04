@@ -10,6 +10,9 @@ function requireTexture(key: AssetKey): Texture {
   return texture;
 }
 
+const HINT_ARROW_OFFSET_X = 104;
+const HINT_ARROW_WIDTH = 34;
+
 export class BlockedHint extends Container {
   private readonly text: Text;
   private visibleUntil = 0;
@@ -18,15 +21,15 @@ export class BlockedHint extends Container {
     super();
     this.visible = false;
 
-    const left = this.createArrow(-132, 0, 0);
-    const right = this.createArrow(132, 0, Math.PI);
+    const left = this.createArrow(-HINT_ARROW_OFFSET_X, 0, 0);
+    const right = this.createArrow(HINT_ARROW_OFFSET_X, 0, Math.PI);
     this.addChild(left, right);
 
     this.text = new Text({
       text: '被左右锁住',
       style: {
         fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
-        fontSize: 30,
+        fontSize: 28,
         fontWeight: '800',
         fill: config.colors.destructive,
         stroke: { color: 0xfff4df, width: 4 },
@@ -65,8 +68,8 @@ export class BlockedHint extends Container {
     arrow.anchor.set(0.5);
     arrow.position.set(x, y);
     arrow.rotation = rotation;
-    arrow.width = 62;
-    arrow.height = 62 * (arrow.texture.height / arrow.texture.width);
+    arrow.width = HINT_ARROW_WIDTH;
+    arrow.height = HINT_ARROW_WIDTH * (arrow.texture.height / arrow.texture.width);
     return arrow;
   }
 }
