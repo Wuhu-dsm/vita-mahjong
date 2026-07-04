@@ -4,8 +4,8 @@ export const config = {
   safeAreaTop: 48,
   safeAreaBottom: 34,
   tile: {
-    width: 227,
-    height: 120,
+    width: 120,
+    height: 227,
     touchPadding: 12,
   },
   tray: {
@@ -43,6 +43,23 @@ export const config = {
   audio: {
     sfxDefaultVolume: 0.7,
     bgmDefaultVolume: 0.4,
+  },
+  persistence: {
+    keyPrefix: 'vita-mahjong:',
+  },
+  particles: {
+    highCount: 18,
+    lowCount: 9,
+    burstDurationMs: 500,
+    minSpeed: 0.8,
+    maxSpeed: 2.5,
+    gravity: 0.15,
+    particleSize: 8,
+    spreadRadius: 152,
+    colors: {
+      primary: 0xF5D78E,
+      secondaries: [0xFF6B6B, 0x4ECDC4, 0xFFE66D],
+    },
   },
 };
 
