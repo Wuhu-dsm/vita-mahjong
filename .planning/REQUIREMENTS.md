@@ -35,7 +35,7 @@
 - [ ] **VISL-01**: Game uses an Oriental classical art style for tiles and backgrounds
 - [ ] **VISL-02**: Selection, match, and elimination animations are smooth and clearly visible
 - [ ] **VISL-03**: Particle effects provide match feedback and can degrade on low-end devices
-- [ ] **VISL-04**: Renderer stays within the ~150 tile-node performance budget on target devices
+- [x] **VISL-04**: Renderer stays within the ~150 tile-node performance budget on target devices
 
 ### Audio & Settings
 
@@ -108,7 +108,7 @@
 | VISL-01 | Phase 2 | Pending |
 | VISL-02 | Phase 2 | Pending |
 | VISL-03 | Phase 3 | Pending |
-| VISL-04 | Phase 1 | Pending |
+| VISL-04 | Phase 1 | Complete |
 | AUDI-01 | Phase 2 | Pending |
 | AUDI-02 | Phase 2 | Pending |
 | AUDI-03 | Phase 2 | Pending |

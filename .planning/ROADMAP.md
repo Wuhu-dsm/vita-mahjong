@@ -25,7 +25,7 @@ Deliver a mobile-first Mahjong Solitaire experience in three coarse phases: firs
   4. When the last tile is removed, the game transitions to a result screen.
   5. When no legal moves remain, the game detects deadlock and offers shuffle or retry.
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 **Risk Notes**:
 
   - Free-tile rule must be centralized and property-tested; boundary/layer cases are error-prone.
@@ -45,7 +45,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — Procedurally generate textures, font manifest, and PixiJS asset loader
+- [x] 01-03-PLAN.md — Procedurally generate textures, font manifest, and PixiJS asset loader
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -114,7 +114,7 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Core Engine & Solvable Levels | 2/4 | In Progress|  |
+| 1. Core Engine & Solvable Levels | 3/4 | In Progress|  |
 | 2. UI/UX, Accessibility & Game Flow | 0/3 | Not started | - |
 | 3. Polish, Persistence & Distribution | 0/2 | Not started | - |
 

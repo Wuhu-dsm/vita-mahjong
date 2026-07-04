@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 01
 current_phase_name: Core Engine & Solvable Levels
 status: executing
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-07-04T18:11:44.788Z"
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-07-04T18:26:54.479Z"
 last_activity: 2026-07-04
-last_activity_desc: Completed Phase 01 Plan 02
+last_activity_desc: Completed Phase 01 Plan 03
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
-  percent: 50
+  completed_plans: 3
+  percent: 75
 ---
 
 # Project State
@@ -29,31 +29,32 @@ See: .planning/PROJECT.md (updated 2026-07-04)
 ## Current Position
 
 Phase: 01 (Core Engine & Solvable Levels) — EXECUTING
-Plan: 2 of 4
-Status: Ready for Plan 3
-Last activity: 2026-07-04 — Completed Phase 01 Plan 02
+Plan: 3 of 4
+Status: Ready for Plan 4
+Last activity: 2026-07-04 — Completed Phase 01 Plan 03
 
-Progress: [█████░░░░░] 50%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 2
+- Total plans completed: 3
 - Average duration: —
-- Total execution time: 14min recorded plus resumed Plan 01 closeout
+- Total execution time: 21min recorded plus resumed Plan 01 closeout
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 | 2/4 | 14min recorded | — |
+| 1 | 3/4 | 21min recorded | — |
 | 2 | 0/3 | — | — |
 | 3 | 0/2 | — | — |
 
 **Recent Trend:**
 
 - Phase 01 P02: 14min, 3 tasks, 10 files.
+- Phase 01 P03: 7min, 2 tasks, 7 files.
 
 ## Accumulated Context
 
@@ -67,6 +68,9 @@ Recent decisions affecting current work:
 - Phase 1 Plan 01-02: Use DEFAULT_SEED plus level id for stable per-level generation.
 - Phase 1 Plan 01-02: Track only public/levels/.gitkeep; generated level JSON remains ignored.
 - Phase 1 Plan 01-02: Use bounded solver backtracking for duplicate-face solvability validation.
+- [Phase 01]: Plan 01-03 keeps generated PNGs out of git and regenerates them through npm run generate-assets and prebuild. — Generated assets are deterministic build outputs; committing binary PNGs would add churn without improving reproducibility.
+- [Phase 01]: Plan 01-03 uses relative public asset paths in assets.json for static H5 subpath portability. — Relative paths work for root deployments and wrapped/static builds served below a domain root.
+- [Phase 01]: Plan 01-03 exposes fonts.css as a PixiJS text asset while relying on browser CSS and local/system font fallbacks. — PixiJS can load the stylesheet manifest entry, and the browser can resolve Noto Sans SC or local Chinese sans-serif fonts.
 
 ### Pending Todos
 
@@ -86,6 +90,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-04T18:10:47.638Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-07-04T18:26:54.473Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None
