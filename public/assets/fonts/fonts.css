@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap");
+
+@font-face {
+  font-family: "Vita Noto Sans SC";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local("Noto Sans SC Regular"),
+    local("NotoSansSC-Regular"),
+    local("Noto Sans CJK SC Regular");
+}
+
+@font-face {
+  font-family: "Vita Noto Sans SC";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src:
+    local("Noto Sans SC Bold"),
+    local("NotoSansSC-Bold"),
+    local("Noto Sans CJK SC Bold");
+}
+
+:root {
+  --vita-ui-font: "Vita Noto Sans SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+}
+
+body {
+  font-family: var(--vita-ui-font);
+}

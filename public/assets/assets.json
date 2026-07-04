@@ -1,0 +1,46 @@
+{
+  "bundles": [
+    {
+      "name": "home",
+      "assets": [
+        { "alias": "bg_home", "src": "assets/textures/bg_home.png" },
+        { "alias": "deco_ring", "src": "assets/textures/deco_ring.png" },
+        { "alias": "logo_vita_mahjong", "src": "assets/textures/logo_vita_mahjong.png" },
+        { "alias": "btn_wooden_capsule", "src": "assets/textures/btn_wooden_capsule.png" },
+        { "alias": "icon_gear", "src": "assets/textures/icon_gear.png" }
+      ]
+    },
+    {
+      "name": "game",
+      "assets": [
+        { "alias": "bg_game", "src": "assets/textures/bg_game.png" },
+        { "alias": "tile_face", "src": "assets/textures/tile_face.png" },
+        { "alias": "tile_side", "src": "assets/textures/tile_side.png" },
+        { "alias": "tile_blocked_arrow", "src": "assets/textures/tile_blocked_arrow.png" },
+        { "alias": "icon_back", "src": "assets/textures/icon_back.png" },
+        { "alias": "icon_menu", "src": "assets/textures/icon_menu.png" },
+        { "alias": "btn_circle_brown", "src": "assets/textures/btn_circle_brown.png" }
+      ]
+    },
+    {
+      "name": "result",
+      "assets": [
+        { "alias": "bg_result", "src": "assets/textures/bg_result.png" },
+        { "alias": "deco_lotus", "src": "assets/textures/deco_lotus.png" },
+        { "alias": "btn_green_capsule", "src": "assets/textures/btn_green_capsule.png" }
+      ]
+    },
+    {
+      "name": "ui",
+      "assets": [
+        { "alias": "particle_square", "src": "assets/textures/particle_square.png" }
+      ]
+    },
+    {
+      "name": "fonts",
+      "assets": [
+        { "alias": "fonts_css", "src": "assets/fonts/fonts.css", "parser": "text" }
+      ]
+    }
+  ]
+}
