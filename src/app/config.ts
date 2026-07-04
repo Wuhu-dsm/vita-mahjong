@@ -40,6 +40,10 @@ export const config = {
     hintLimit: 3,
     shuffleLimit: 1,
   },
+  audio: {
+    sfxDefaultVolume: 0.7,
+    bgmDefaultVolume: 0.4,
+  },
 };
 
 export type Config = typeof config;
