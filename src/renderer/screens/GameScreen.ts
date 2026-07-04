@@ -12,6 +12,7 @@ import { FailurePopup } from '../components/FailurePopup';
 import { HUD } from '../components/HUD';
 import { TILE_TAPPED, TileSprite } from '../components/TileSprite';
 import { Tray } from '../components/Tray';
+import { ParticleBurst } from '../effects/ParticleBurst';
 import { ScoreFloater } from '../effects/ScoreFloater';
 import { TilePool } from '../pools/TilePool';
 
@@ -78,6 +79,7 @@ export class GameScreen extends Container {
   private readonly comboFeedback: ComboFeedback;
   private readonly failurePopup: FailurePopup;
   private readonly scoreFloater: ScoreFloater;
+  private readonly particleBurst: ParticleBurst;
   private readonly tilePool = new TilePool();
   private readonly tileByStoneId = new Map<string, TileSprite>();
   private readonly animations: Animation[] = [];
@@ -95,6 +97,7 @@ export class GameScreen extends Container {
     this.blockedHint.update(now);
     this.comboFeedback.update(ticker);
     this.scoreFloater.update(ticker);
+    this.particleBurst.update(ticker);
     this.updateAnimations(ticker);
 
     if (this.state && !this.state.isTerminal()) {
@@ -118,8 +121,9 @@ export class GameScreen extends Container {
     this.comboFeedback = new ComboFeedback();
     this.failurePopup = new FailurePopup();
     this.scoreFloater = new ScoreFloater();
+    this.particleBurst = new ParticleBurst(options.isLowEndDevice ?? false);
 
-    this.addChild(this.hud, this.tray, this.boardLayer, this.comboFeedback, this.scoreFloater, this.failurePopup);
+    this.addChild(this.hud, this.tray, this.boardLayer, this.comboFeedback, this.scoreFloater, this.particleBurst, this.failurePopup);
 
     this.blockedHint = new BlockedHint();
     this.boardLayer.addChild(this.blockedHint);
@@ -350,6 +354,13 @@ export class GameScreen extends Container {
     };
 
     if (result.matched && result.removed.length >= 2) {
+      const tile1 = this.tileByStoneId.get(result.removed[0].id);
+      const tile2 = this.tileByStoneId.get(result.removed[1].id);
+      if (tile1 && tile2) {
+        const midX = (tile1.x + tile2.x) / 2;
+        const midY = (tile1.y + tile2.y) / 2;
+        this.particleBurst.emit(midX, midY);
+      }
       this.tray.playMatchRemoval(result.removed, targetSlotIndex, this.level.theme, this.ticker, finalize);
       return;
     }
