@@ -30,20 +30,43 @@ function makeLabel(text: string, x: number): Text {
 export class HUD extends Container {
   private readonly levelLabel = makeLabel('关卡 1', config.designWidth * 0.31);
   private readonly scoreLabel = makeLabel('分数 0', config.designWidth * 0.52);
-  private readonly comboLabel = makeLabel('匹配 0', config.designWidth * 0.73);
+  private readonly timerLabel: Text;
+  private readonly comboLabel = makeLabel('匹配 0', config.designWidth * 0.78);
 
-  constructor() {
+  constructor(private readonly onBack?: () => void) {
     super();
 
+    this.timerLabel = new Text({
+      text: '00:00',
+      style: {
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontSize: 30,
+        fontWeight: '800',
+        fill: 0xfff4d6,
+        stroke: { color: 0x08352c, width: 4 },
+        align: 'center',
+      },
+    });
+    this.timerLabel.anchor.set(0.5);
+    this.timerLabel.position.set(config.designWidth * 0.615, config.safeAreaTop + 46);
+
     const backButton = this.createIconButton('icon_back', config.designWidth * 0.07);
+    backButton.on('pointertap', () => {
+      if (this.onBack) this.onBack();
+    });
     const menuButton = this.createIconButton('icon_menu', config.designWidth * 0.93);
-    this.addChild(backButton, menuButton, this.levelLabel, this.scoreLabel, this.comboLabel);
+    this.addChild(backButton, menuButton, this.levelLabel, this.scoreLabel, this.timerLabel, this.comboLabel);
   }
 
-  update(level: number, score: number, combo: number): void {
+  update(level: number, score: number, combo: number, timerMs?: number): void {
     this.levelLabel.text = `关卡 ${level}`;
     this.scoreLabel.text = `分数 ${Math.round(score)}`;
     this.comboLabel.text = `匹配 ${combo}`;
+    if (timerMs !== undefined) {
+      const minutes = Math.floor(timerMs / 60000).toString().padStart(2, '0');
+      const seconds = Math.floor((timerMs % 60000) / 1000).toString().padStart(2, '0');
+      this.timerLabel.text = `${minutes}:${seconds}`;
+    }
   }
 
   getScoreAnchor(): { x: number; y: number } {

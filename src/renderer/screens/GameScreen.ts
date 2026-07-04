@@ -15,6 +15,7 @@ import { TilePool } from '../pools/TilePool';
 
 export interface GameScreenOptions {
   ticker?: Ticker;
+  onBack?: () => void;
 }
 
 interface Animation {
@@ -82,6 +83,7 @@ export class GameScreen extends Container {
   private state: GameState | null = null;
   private level: Level | null = null;
   private inputLocked = false;
+  private startedAt = 0;
   private readonly tick = (ticker: Ticker): void => {
     const now = performance.now();
     this.blockedFeedback.update(now);
@@ -89,6 +91,11 @@ export class GameScreen extends Container {
     this.comboFeedback.update(ticker);
     this.scoreFloater.update(ticker);
     this.updateAnimations(ticker);
+
+    if (this.state && !this.state.isTerminal()) {
+      const elapsedMs = Date.now() - this.startedAt;
+      this.hud.update(this.state.getLevel().id, this.state.getScore(), this.state.getCombo(), elapsedMs);
+    }
   };
 
   constructor(options: GameScreenOptions = {}) {
@@ -100,7 +107,7 @@ export class GameScreen extends Container {
     this.background.height = config.designHeight;
     this.addChild(this.background);
 
-    this.hud = new HUD();
+    this.hud = new HUD(options.onBack);
     this.tray = new Tray();
     this.boardLayer.sortableChildren = true;
     this.comboFeedback = new ComboFeedback();
@@ -131,6 +138,7 @@ export class GameScreen extends Container {
   async startLevel(levelNumber: number): Promise<void> {
     const level = await this.loadLevel(levelNumber);
     this.loadLevelModel(level);
+    this.startedAt = Date.now();
   }
 
   loadLevelModel(level: Level): void {
@@ -309,7 +317,9 @@ export class GameScreen extends Container {
         this.comboFeedback.show(result.combo);
       }
       if (result.won) {
-        this.emit(GameScreen.WIN, this.state.getStats() satisfies GameStats);
+        const stats = this.state!.getStats();
+        stats.elapsedSeconds = Math.floor((Date.now() - this.startedAt) / 1000);
+        this.emit(GameScreen.WIN, stats satisfies GameStats);
       } else if (result.failed) {
         this.failurePopup.show();
       }
@@ -358,9 +368,9 @@ export class GameScreen extends Container {
   }
 
   private toBoardPosition(stone: Stone): { x: number; y: number } {
-    const gridX = 64;
-    const gridY = 78;
-    const layerOffset = 18;
+    const gridX = 113.5;
+    const gridY = 120;
+    const layerOffset = 28;
     return {
       x: stone.x * gridX + stone.z * layerOffset,
       y: stone.y * gridY - stone.z * layerOffset,

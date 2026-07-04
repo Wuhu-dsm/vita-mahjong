@@ -163,6 +163,10 @@ export class GameState {
     return this.maxCombo;
   }
 
+  isTerminal(): boolean {
+    return this.terminal;
+  }
+
   getStats(): GameStats {
     return {
       level: this.level.id,
