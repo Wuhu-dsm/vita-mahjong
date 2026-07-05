@@ -63,18 +63,20 @@ describe('blocked tile visual cue ownership', () => {
   it('keeps TileSprite blocked state dim-only with no persistent local arrows', () => {
     const source = readFileSync(new URL('../renderer/components/TileSprite.ts', import.meta.url), 'utf8');
 
-    expect(source).toContain('faceSprite.alpha = enabled ? 0.56 : 1');
-    expect(source).toContain('symbolText.alpha = enabled ? 0.42 : 1');
+    expect(source).toContain('blockedOverlay.alpha = enabled ? 0.44 : 0');
+    expect(source).toContain('faceSprite.alpha = enabled ? 0.72 : 1');
+    expect(source).not.toContain('smallSymbolText');
+    expect(source).not.toMatch(/[一二三四五六七八九][万条筒]/);
     expect(source).not.toMatch(/leftArrow|rightArrow|createBlockedArrow|tile_blocked_arrow/);
   });
 
-  it('keeps BlockedHint as the compact arrow and text cue', () => {
+  it('keeps BlockedHint as the reference-style label and red side-arrow cue', () => {
     const source = readFileSync(new URL('../renderer/components/BlockedHint.ts', import.meta.url), 'utf8');
 
     expect(source).toContain('被左右锁住');
-    expect(source).toContain('HINT_ARROW_OFFSET_X = 104');
-    expect(source).toContain('HINT_ARROW_WIDTH = 34');
-    expect(source).not.toContain('createArrow(-132');
-    expect(source).not.toContain('arrow.width = 62');
+    expect(source).toContain('HINT_LABEL_WIDTH = 318');
+    expect(source).toContain('HINT_ARROW_OFFSET_X = 126');
+    expect(source).toContain('HINT_ARROW_WIDTH = 118');
+    expect(source).not.toContain('tile_blocked_arrow');
   });
 });

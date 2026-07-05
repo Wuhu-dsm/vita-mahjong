@@ -34,6 +34,11 @@ export interface BlockedFeedbackTarget {
   setBlocked(enabled: boolean): void;
 }
 
+const BOARD_LAYER_OFFSET_X = config.tile.width * 0.5;
+const BOARD_LAYER_OFFSET_Y = config.tile.height * 0.5;
+const BOARD_SIDE_BOUNDS_X = 42;
+const BOARD_SIDE_BOUNDS_Y = 46;
+
 export class BlockedFeedbackLifecycle<T extends BlockedFeedbackTarget = BlockedFeedbackTarget> {
   private current: T | null = null;
   private expiresAt = 0;
@@ -263,9 +268,9 @@ export class GameScreen extends Container {
   private getBlockedHintPosition(tile: TileSprite): { x: number; y: number } {
     const boardScale = this.boardLayer.scale.x || 1;
     const rawCanvasX = this.boardLayer.x + tile.x * boardScale;
-    const rawCanvasY = this.boardLayer.y + (tile.y - config.tile.height * 0.72) * boardScale;
-    const hintHalfWidth = 128;
-    const hintHalfHeight = 42;
+    const rawCanvasY = this.boardLayer.y + (tile.y - config.tile.height * 0.02) * boardScale;
+    const hintHalfWidth = 240;
+    const hintHalfHeight = 150;
     const trayBottom = config.designHeight * 0.14 + config.tray.height / 2;
     const minCanvasX = hintHalfWidth;
     const maxCanvasX = config.designWidth - hintHalfWidth;
@@ -484,10 +489,9 @@ export class GameScreen extends Container {
   private toBoardPosition(stone: Stone): { x: number; y: number } {
     const gridX = config.tile.width / 2;
     const gridY = config.tile.height;
-    const layerOffset = config.tile.width / 8;
     return {
-      x: stone.x * gridX + stone.z * layerOffset,
-      y: stone.y * gridY - stone.z * layerOffset,
+      x: stone.x * gridX + stone.z * BOARD_LAYER_OFFSET_X,
+      y: stone.y * gridY - stone.z * BOARD_LAYER_OFFSET_Y,
     };
   }
 
@@ -499,8 +503,8 @@ export class GameScreen extends Container {
     width: number;
     height: number;
   } {
-    const halfWidth = config.tile.width / 2;
-    const halfHeight = config.tile.height / 2 + 24;
+    const halfWidth = config.tile.width / 2 + BOARD_SIDE_BOUNDS_X;
+    const halfHeight = config.tile.height / 2 + BOARD_SIDE_BOUNDS_Y;
     const minX = Math.min(...positions.map((p) => p.x - halfWidth));
     const maxX = Math.max(...positions.map((p) => p.x + halfWidth));
     const minY = Math.min(...positions.map((p) => p.y - halfHeight));

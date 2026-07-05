@@ -5,40 +5,42 @@ import type { Stone, ThemeId } from '../../engine/types';
 const FACE_SYMBOLS: Record<ThemeId, string[]> = {
   zodiac: ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'],
   traditional: [
-    '一筒',
-    '二筒',
-    '三筒',
-    '四筒',
-    '五筒',
-    '六筒',
-    '七筒',
-    '八筒',
-    '九筒',
-    '一条',
-    '二条',
-    '三条',
-    '四条',
-    '五条',
-    '六条',
-    '七条',
-    '八条',
-    '九条',
-    '一万',
-    '二万',
-    '三万',
-    '四万',
-    '五万',
-    '六万',
-    '七万',
-    '八万',
-    '九万',
-    '中',
-    '发',
-    '白',
-    '东',
-    '南',
-    '西',
-    '北',
+    '♈',
+    '♉',
+    '♊',
+    '♋',
+    '♌',
+    '♍',
+    '♎',
+    '♏',
+    '♐',
+    '♑',
+    '♒',
+    '♓',
+    '猫',
+    '鱼',
+    '蟹',
+    '蝎',
+    '鸟',
+    '蝶',
+    '鹿',
+    '兔',
+    '鹤',
+    '虎',
+    '龟',
+    '狐',
+    '竹',
+    '莲',
+    '云',
+    '太',
+    '灯',
+    '扇',
+    '茶',
+    '玉',
+    '月',
+    '桥',
+    '琴',
+    '棋',
     '春',
     '夏',
     '秋',
@@ -65,7 +67,7 @@ export class TileSprite extends Container {
 
   private readonly haloSprite: Graphics;
   private readonly symbolText: Text;
-  private readonly smallSymbolText: Text;
+  private readonly blockedOverlay: Graphics;
   private stoneId: string | null = null;
   private faceId: number | null = null;
 
@@ -105,22 +107,14 @@ export class TileSprite extends Container {
       },
     });
     this.symbolText.anchor.set(0.5);
-    this.symbolText.position.set(0, -18);
+    this.symbolText.position.set(0, 0);
     this.addChild(this.symbolText);
 
-    this.smallSymbolText = new Text({
-      text: '',
-      style: {
-        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
-        fontSize: 42,
-        fontWeight: '900',
-        fill: FACE_TINTS[0],
-        align: 'center',
-      },
-    });
-    this.smallSymbolText.anchor.set(0.5);
-    this.smallSymbolText.position.set(0, config.tile.height * 0.34);
-    this.addChild(this.smallSymbolText);
+    this.blockedOverlay = new Graphics();
+    this.blockedOverlay.roundRect(-config.tile.width / 2, -config.tile.height / 2, config.tile.width, config.tile.height, 22);
+    this.blockedOverlay.fill({ color: 0x4f504b, alpha: 0.68 });
+    this.blockedOverlay.alpha = 0;
+    this.addChild(this.blockedOverlay);
 
     this.eventMode = 'static';
     this.cursor = 'pointer';
@@ -151,8 +145,6 @@ export class TileSprite extends Container {
     const faceSet = FACE_SYMBOLS[theme] ?? FACE_SYMBOLS.zodiac;
     this.symbolText.text = faceSet[faceId % faceSet.length] ?? String(faceId + 1);
     this.symbolText.style.fill = FACE_TINTS[faceId % FACE_TINTS.length];
-    this.smallSymbolText.text = FACE_SYMBOLS.zodiac[faceId % FACE_SYMBOLS.zodiac.length] ?? '';
-    this.smallSymbolText.style.fill = FACE_TINTS[faceId % FACE_TINTS.length];
     this.drawSide(config.colors.tileSide);
   }
 
@@ -178,9 +170,10 @@ export class TileSprite extends Container {
   }
 
   setBlocked(enabled: boolean): void {
-    this.faceSprite.alpha = enabled ? 0.56 : 1;
-    this.symbolText.alpha = enabled ? 0.42 : 1;
-    this.smallSymbolText.alpha = enabled ? 0.42 : 1;
+    this.faceSprite.alpha = enabled ? 0.72 : 1;
+    this.sideSprite.alpha = enabled ? 0.7 : 1;
+    this.symbolText.alpha = enabled ? 0.7 : 1;
+    this.blockedOverlay.alpha = enabled ? 0.44 : 0;
   }
 
   resetForPool(): void {
@@ -213,9 +206,15 @@ export class TileSprite extends Container {
     const w = config.tile.width;
     const h = config.tile.height;
     this.sideSprite.clear();
-    this.sideSprite.roundRect(-w / 2 + 5, h / 2 - 24, w - 10, 40, 14);
+    this.sideSprite.roundRect(w / 2 - 24, -h / 2 + 18, 42, h - 18, 14);
+    this.sideSprite.fill({ color: 0x087c1c });
+    this.sideSprite.roundRect(w / 2 - 15, -h / 2 + 26, 18, h - 34, 9);
+    this.sideSprite.fill({ color: 0x17c738, alpha: 0.58 });
+    this.sideSprite.roundRect(-w / 2 + 5, h / 2 - 24, w - 1, 48, 15);
     this.sideSprite.fill({ color });
-    this.sideSprite.roundRect(-w / 2 + 8, h / 2 - 17, w - 16, 20, 9);
-    this.sideSprite.fill({ color: 0x16c238, alpha: 0.72 });
+    this.sideSprite.roundRect(-w / 2 + 10, h / 2 - 17, w - 19, 22, 9);
+    this.sideSprite.fill({ color: 0x17c738, alpha: 0.74 });
+    this.sideSprite.roundRect(w / 2 - 22, h / 2 - 14, 38, 31, 13);
+    this.sideSprite.fill({ color: 0x075e18, alpha: 0.55 });
   }
 }
