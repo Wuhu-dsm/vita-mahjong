@@ -8,5 +8,5 @@ public/assets/textures/*.png
 .env*
 .venv/
 .claude/
-
+tmp
 
