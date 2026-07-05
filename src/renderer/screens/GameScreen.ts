@@ -95,8 +95,9 @@ export class GameScreen extends Container {
   private readonly ticker?: Ticker;
   private state: GameState | null = null;
   private level: Level | null = null;
-  private inputLocked = false;
-  private readonly tapQueue: string[] = [];
+  private activeAnimations = 0;
+  private boardNeedsRender = false;
+  private readonly flyingStones = new Set<string>();
   private startedAt = 0;
   private readonly tick = (ticker: Ticker): void => {
     const now = performance.now();
@@ -173,8 +174,9 @@ export class GameScreen extends Container {
     this.level = this.validateLevel(level);
     this.state = new GameState(this.level);
     this.failurePopup.hide();
-    this.inputLocked = false;
-    this.tapQueue.length = 0;
+    this.activeAnimations = 0;
+    this.boardNeedsRender = false;
+    this.flyingStones.clear();
     this.tray.clear();
     this.updateHud();
     this.renderBoard();
@@ -199,7 +201,12 @@ export class GameScreen extends Container {
 
   private renderBoard(): void {
     if (!this.state || !this.level) return;
+    if (this.activeAnimations > 0) {
+      this.boardNeedsRender = true;
+      return;
+    }
 
+    this.boardNeedsRender = false;
     this.clearBlockedFeedback();
     this.tilePool.freeAll();
     this.tileByStoneId.clear();
@@ -235,10 +242,6 @@ export class GameScreen extends Container {
 
   private readonly handleTileTap = (stoneId: string): void => {
     if (!this.state) return;
-    if (this.inputLocked) {
-      this.tapQueue.push(stoneId);
-      return;
-    }
     const tile = this.tileByStoneId.get(stoneId);
     if (!tile) return;
 
@@ -256,7 +259,6 @@ export class GameScreen extends Container {
       return;
     }
 
-    this.inputLocked = true;
     this.clearBlockedFeedback();
     this.clearHintHighlights();
     this.tileByStoneId.forEach((candidate) => candidate.highlight(false));
@@ -265,18 +267,6 @@ export class GameScreen extends Container {
     this.emit(GameScreen.TILE_TAPPED, result.stone);
     this.animateTileToTray(tile, targetSlotIndex, result);
   };
-
-  private processTapQueue(): void {
-    if (!this.state || this.state.isTerminal() || this.inputLocked || this.tapQueue.length === 0) {
-      return;
-    }
-    const stoneId = this.tapQueue.shift()!;
-    if (!this.tileByStoneId.has(stoneId)) {
-      this.processTapQueue();
-      return;
-    }
-    this.handleTileTap(stoneId);
-  }
 
   private clearBlockedFeedback(): void {
     this.blockedFeedback.clear();
@@ -311,6 +301,10 @@ export class GameScreen extends Container {
   }
 
   private animateTileToTray(tile: TileSprite, targetSlotIndex: number, result: GameTapResult): void {
+    this.startAnimation();
+    if (result.stone) {
+      this.flyingStones.add(result.stone.id);
+    }
     const target = this.tray.getSlotCenter(targetSlotIndex);
     const targetLocal = {
       x: (target.x - this.boardLayer.x) / this.boardLayer.scale.x,
@@ -344,51 +338,78 @@ export class GameScreen extends Container {
         tile.alpha = 1 - progress * 0.12;
       },
       complete: () => {
+        if (result.stone) {
+          this.flyingStones.delete(result.stone.id);
+        }
         this.tilePool.free(tile);
         this.finishTapResult(result, targetSlotIndex);
       },
     });
   }
 
+  private startAnimation(): void {
+    this.activeAnimations += 1;
+  }
+
+  private endAnimation(): void {
+    this.activeAnimations = Math.max(0, this.activeAnimations - 1);
+    if (this.activeAnimations === 0 && this.boardNeedsRender) {
+      this.renderBoard();
+    }
+  }
+
   private finishTapResult(result: GameTapResult, targetSlotIndex: number): void {
     if (!this.state || !this.level) return;
 
-    const finalize = (): void => {
-      if (!this.state || !this.level) return;
-      this.tray.setSlots(result.traySlots, this.level.theme);
-      this.renderBoard();
-      this.updateHud();
-      this.inputLocked = result.failed || result.won;
+    const visibleSlots = this.state.getTraySlots().map((stone) =>
+      stone && this.flyingStones.has(stone.id) ? null : stone,
+    );
+    this.tray.setSlots(visibleSlots, this.level.theme);
+    this.updateHud();
 
-      if (result.scoreAwarded > 0) {
-        const scoreAnchor = this.hud.getScoreAnchor();
-        this.scoreFloater.show(result.scoreAwarded, scoreAnchor.x, scoreAnchor.y);
-        AudioManager.getInstance().playSfx('match');
-      }
-      if (result.combo >= 2) {
-        this.comboFeedback.show(result.combo);
-        AudioManager.getInstance().playSfx('combo');
-      }
-      if (result.won) {
-        const stats = this.state!.getStats();
-        stats.elapsedSeconds = Math.floor((Date.now() - this.startedAt) / 1000);
-        this.emit(GameScreen.WIN, stats satisfies GameStats);
-      } else if (result.failed) {
-        this.failurePopup.show();
-        AudioManager.getInstance().playSfx('fail');
-      }
-
-      this.processTapQueue();
-    };
+    if (result.scoreAwarded > 0) {
+      const scoreAnchor = this.hud.getScoreAnchor();
+      this.scoreFloater.show(result.scoreAwarded, scoreAnchor.x, scoreAnchor.y);
+      AudioManager.getInstance().playSfx('match');
+    }
+    if (result.combo >= 2) {
+      this.comboFeedback.show(result.combo);
+      AudioManager.getInstance().playSfx('combo');
+    }
 
     if (result.matched && result.removed.length >= 2) {
+      this.startAnimation();
       const burstAnchor = this.tray.getSlotCenter(targetSlotIndex);
       this.particleBurst.emit(burstAnchor.x, burstAnchor.y - 76);
-      this.tray.playMatchRemoval(result.removed, targetSlotIndex, this.level.theme, this.ticker, finalize);
+      this.tray.playMatchRemoval(result.removed, targetSlotIndex, this.level.theme, this.ticker, () => {
+        if (!this.state || !this.level) return;
+        const visibleSlots = this.state.getTraySlots().map((stone) =>
+          stone && this.flyingStones.has(stone.id) ? null : stone,
+        );
+        this.tray.setSlots(visibleSlots, this.level.theme);
+        this.updateHud();
+        this.checkTerminal(result);
+        this.boardNeedsRender = true;
+        this.endAnimation();
+      });
       return;
     }
 
-    finalize();
+    this.checkTerminal(result);
+    this.boardNeedsRender = true;
+    this.endAnimation();
+  }
+
+  private checkTerminal(result: GameTapResult): void {
+    if (!this.state || !this.level) return;
+    if (result.won) {
+      const stats = this.state.getStats();
+      stats.elapsedSeconds = Math.floor((Date.now() - this.startedAt) / 1000);
+      this.emit(GameScreen.WIN, stats satisfies GameStats);
+    } else if (result.failed) {
+      this.failurePopup.show();
+      AudioManager.getInstance().playSfx('fail');
+    }
   }
 
   private updateAnimations(ticker: Ticker): void {
@@ -405,7 +426,7 @@ export class GameScreen extends Container {
   }
 
   private handleUndo(): void {
-    if (!this.state || !this.level || this.inputLocked) return;
+    if (!this.state || !this.level || this.activeAnimations > 0) return;
     AudioManager.getInstance().playSfx('click');
     this.clearHintHighlights();
     if (!this.state.undo()) return;
@@ -419,7 +440,7 @@ export class GameScreen extends Container {
   }
 
   private handleHint(): void {
-    if (!this.state || this.inputLocked) return;
+    if (!this.state || this.activeAnimations > 0) return;
     AudioManager.getInstance().playSfx('click');
     const result = this.state.hint();
     if (!result) {
@@ -463,7 +484,7 @@ export class GameScreen extends Container {
   }
 
   private handleShuffle(): void {
-    if (!this.state || !this.level || this.inputLocked) return;
+    if (!this.state || !this.level || this.activeAnimations > 0) return;
     AudioManager.getInstance().playSfx('click');
     this.clearHintHighlights();
     if (!this.state.shuffle()) return;
