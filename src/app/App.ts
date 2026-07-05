@@ -14,21 +14,21 @@ let currentLevel = loadLevel();
 const lowEndDevice = isLowEndDevice();
 
 export async function createApp(): Promise<Application> {
+  const container = document.getElementById('game');
+  if (!container) {
+    throw new Error('Missing #game container');
+  }
+
   const app = new Application();
   await app.init({
-    resizeTo: window,
+    resizeTo: container,
     backgroundColor: config.colors.homeBg,
     antialias: true,
     resolution: Math.min(window.devicePixelRatio, 2),
     autoDensity: true,
   });
 
-  const container = document.getElementById('game');
-  if (container) {
-    container.appendChild(app.canvas);
-  } else {
-    document.body.appendChild(app.canvas);
-  }
+  container.appendChild(app.canvas);
 
   await loadAssets(['home', 'result', 'fonts']);
 
