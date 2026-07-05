@@ -9,4 +9,4 @@ public/assets/textures/*.png
 .venv/
 .claude/
 tmp
-
+CLAUDE.md
