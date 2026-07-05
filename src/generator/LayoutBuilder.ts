@@ -235,22 +235,57 @@ function assertSpec(spec: LevelSpec): void {
   }
 }
 
-function layerPositions(z: number, count: number, maxColumns: number): Array<[number, number, number]> {
+function seededRng(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 4294967296;
+  };
+}
+
+function rowWidthHash(levelId: number, z: number, row: number): number {
+  return ((levelId * 73856093) ^ (z * 19349663) ^ (row * 83492791)) >>> 0;
+}
+
+function distributeRowWidths(count: number, maxColumns: number, z: number, levelId: number): number[] {
   const columns = Math.max(2, Math.min(maxColumns, count));
-  const rowCount = Math.ceil(count / columns);
+  const evenColumns = columns % 2 === 0 ? columns : columns - 1;
+  let rowCount = Math.ceil(count / evenColumns);
+
+  // A perfectly filled rectangle looks too regular. Add an extra row when possible
+  // so the shape gains jagged edges while keeping the same tile count.
+  if (rowCount * evenColumns === count && (rowCount + 1) * 2 <= count) {
+    rowCount += 1;
+  }
+
+  const widths: number[] = Array(rowCount).fill(evenColumns);
+  let currentTotal = rowCount * evenColumns;
+  const minTotal = rowCount * 2;
+  const rng = seededRng(rowWidthHash(levelId, z, count));
+
+  while (currentTotal > count) {
+    const reducible = widths
+      .map((width, index) => ({ width, index }))
+      .filter(({ width }) => width > 2 && currentTotal - 2 >= Math.max(count, minTotal));
+
+    if (reducible.length === 0) break;
+
+    const pick = reducible[Math.floor(rng() * reducible.length)];
+    widths[pick.index] -= 2;
+    currentTotal -= 2;
+  }
+
+  return widths;
+}
+
+function layerPositions(z: number, count: number, maxColumns: number, levelId: number): Array<[number, number, number]> {
+  const widths = distributeRowWidths(count, maxColumns, z, levelId);
+  const rowCount = widths.length;
   const positions: Array<[number, number, number]> = [];
-  let remaining = count;
 
   for (let row = 0; row < rowCount; row += 1) {
-    const rowsLeft = rowCount - row;
-    const minForRemainingRows = (rowsLeft - 1) * 2;
-    let width = Math.min(columns, remaining - minForRemainingRows);
-
-    if (width % 2 !== 0) {
-      width -= 1;
-    }
-
-    if (width < 2) {
+    const width = widths[row];
+    if (width < 2 || width % 2 !== 0) {
       throw new Error(`Cannot build an even row for layer ${z}`);
     }
 
@@ -259,8 +294,6 @@ function layerPositions(z: number, count: number, maxColumns: number): Array<[nu
       const x = col * 2 - (width - 1);
       positions.push([z, x, y]);
     }
-
-    remaining -= width;
   }
 
   return positions;
@@ -271,7 +304,7 @@ function createLayout(spec: LevelSpec): LevelLayout {
 
   const positions = spec.layerCounts.flatMap((count, z) => {
     const layerColumns = Math.max(2, spec.columns - z * 2);
-    return layerPositions(z, count, layerColumns);
+    return layerPositions(z, count, layerColumns, spec.id);
   });
 
   return {

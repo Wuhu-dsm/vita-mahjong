@@ -96,6 +96,7 @@ export class GameScreen extends Container {
   private state: GameState | null = null;
   private level: Level | null = null;
   private inputLocked = false;
+  private readonly tapQueue: string[] = [];
   private startedAt = 0;
   private readonly tick = (ticker: Ticker): void => {
     const now = performance.now();
@@ -173,6 +174,7 @@ export class GameScreen extends Container {
     this.state = new GameState(this.level);
     this.failurePopup.hide();
     this.inputLocked = false;
+    this.tapQueue.length = 0;
     this.tray.clear();
     this.updateHud();
     this.renderBoard();
@@ -232,7 +234,11 @@ export class GameScreen extends Container {
   }
 
   private readonly handleTileTap = (stoneId: string): void => {
-    if (!this.state || this.inputLocked) return;
+    if (!this.state) return;
+    if (this.inputLocked) {
+      this.tapQueue.push(stoneId);
+      return;
+    }
     const tile = this.tileByStoneId.get(stoneId);
     if (!tile) return;
 
@@ -259,6 +265,18 @@ export class GameScreen extends Container {
     this.emit(GameScreen.TILE_TAPPED, result.stone);
     this.animateTileToTray(tile, targetSlotIndex, result);
   };
+
+  private processTapQueue(): void {
+    if (!this.state || this.state.isTerminal() || this.inputLocked || this.tapQueue.length === 0) {
+      return;
+    }
+    const stoneId = this.tapQueue.shift()!;
+    if (!this.tileByStoneId.has(stoneId)) {
+      this.processTapQueue();
+      return;
+    }
+    this.handleTileTap(stoneId);
+  }
 
   private clearBlockedFeedback(): void {
     this.blockedFeedback.clear();
@@ -359,6 +377,8 @@ export class GameScreen extends Container {
         this.failurePopup.show();
         AudioManager.getInstance().playSfx('fail');
       }
+
+      this.processTapQueue();
     };
 
     if (result.matched && result.removed.length >= 2) {
