@@ -38,7 +38,6 @@ export async function createApp(): Promise<Application> {
     ticker: app.ticker,
     isLowEndDevice: lowEndDevice,
     onBack: () => {
-      AudioManager.getInstance().stopBgm();
       void screenManager.show('home', { immediate: true, backgroundColor: config.colors.homeBg });
     },
   });
@@ -77,7 +76,6 @@ export async function createApp(): Promise<Application> {
   });
 
   gameScreen.on(GameScreen.WIN, (stats) => {
-    AudioManager.getInstance().stopBgm();
     AudioManager.getInstance().playSfx('win');
     resultScreen.setStats(stats);
     currentLevel = stats.nextLevel;
@@ -111,6 +109,5 @@ export async function createApp(): Promise<Application> {
     await AudioManager.getInstance().init();
     await gameScreen.startLevel(level);
     await screenManager.show('game', { backgroundColor: config.colors.gameBg });
-    AudioManager.getInstance().startBgm();
   }
 }

@@ -1,4 +1,4 @@
-import { Container, Graphics, Text } from 'pixi.js';
+import { Container, Circle, Graphics, Text } from 'pixi.js';
 
 type PowerIcon = 'undo' | 'hint' | 'shuffle';
 
@@ -13,6 +13,7 @@ class PowerButton extends Container {
     super();
     this.eventMode = 'static';
     this.cursor = 'pointer';
+    this.hitArea = new Circle(0, 0, 86);
     this.on('pointertap', onTap);
 
     const bg = new Graphics();

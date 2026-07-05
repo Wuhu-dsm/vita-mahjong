@@ -18,14 +18,13 @@ export class FailurePopup extends Container {
     super();
     this.visible = false;
     this.alpha = 0;
-    this.eventMode = 'static';
+    this.eventMode = 'none';
     this.hitArea = new Rectangle(0, 0, config.designWidth, config.designHeight);
 
     const overlay = new Sprite(requireTexture('bg_result'));
     overlay.width = config.designWidth;
     overlay.height = config.designHeight;
     overlay.alpha = 0.62;
-    overlay.eventMode = 'static';
     this.addChild(overlay);
 
     const panel = new Sprite(requireTexture('btn_circle_brown'));
@@ -68,10 +67,12 @@ export class FailurePopup extends Container {
     this.visible = true;
     this.alpha = 1;
     this.scale.set(1);
+    this.eventMode = 'static';
   }
 
   hide(): void {
     this.visible = false;
     this.alpha = 0;
+    this.eventMode = 'none';
   }
 }

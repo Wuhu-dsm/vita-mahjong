@@ -8,13 +8,9 @@ import { resetLevel } from '../../app/persistence';
 
 export class SettingsScreen extends Container {
   private readonly sfxSlider: Slider;
-  private readonly bgmSlider: Slider;
   private readonly sfxValueText: Text;
-  private readonly bgmValueText: Text;
   private readonly sfxMuteIndicator: Graphics;
-  private readonly bgmMuteIndicator: Graphics;
   private readonly sfxMuteLabel: Text;
-  private readonly bgmMuteLabel: Text;
   private readonly resetConfirmDialog: ConfirmationDialog;
 
   constructor(onBack: () => void) {
@@ -56,7 +52,7 @@ export class SettingsScreen extends Container {
     this.addChild(backButton);
 
     // ─── Row 1: SFX Volume ─────────────────────────────
-    const row1Y = config.designHeight * 0.25;
+    const row1Y = config.designHeight * 0.30;
     this.addChild(this.createRowCard(row1Y));
 
     const sfxIcon = this.createIcon('♪', row1Y, -430);
@@ -90,7 +86,7 @@ export class SettingsScreen extends Container {
     this.addChild(this.sfxValueText);
 
     // ─── Row 2: SFX Mute ───────────────────────────────
-    const row2Y = config.designHeight * 0.36;
+    const row2Y = config.designHeight * 0.41;
     this.addChild(this.createRowCard(row2Y));
 
     const sfxMuteIcon = this.createIcon('♪', row2Y, -430);
@@ -135,101 +131,8 @@ export class SettingsScreen extends Container {
     this.sfxMuteLabel.position.set(config.designWidth / 2 + 350, row2Y);
     this.addChild(this.sfxMuteLabel);
 
-    // ─── Row 3: BGM Volume ─────────────────────────────
-    const row3Y = config.designHeight * 0.51;
-    this.addChild(this.createRowCard(row3Y));
-
-    const bgmIcon = this.createIcon('♫', row3Y, -430);
-    this.addChild(bgmIcon);
-
-    const bgmLabel = this.createLabel('音乐', row3Y, -380);
-    this.addChild(bgmLabel);
-
-    this.bgmSlider = new Slider({
-      width: 560,
-      initialValue: audio.getBgmVolume(),
-      onChange: (v) => {
-        audio.setBgmVolume(v);
-        this.bgmValueText.text = String(Math.round(v * 100));
-      },
-    });
-    this.bgmSlider.position.set(config.designWidth / 2 + 20, row3Y);
-    this.addChild(this.bgmSlider);
-
-    this.bgmValueText = new Text({
-      text: String(Math.round(audio.getBgmVolume() * 100)),
-      style: {
-        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
-        fontSize: 30,
-        fontWeight: '400',
-        fill: 0xfff5dc,
-      },
-    });
-    this.bgmValueText.anchor.set(0.5, 0.5);
-    this.bgmValueText.position.set(config.designWidth / 2 + 350, row3Y);
-    this.addChild(this.bgmValueText);
-
-    // ─── Row 4: BGM Mute ───────────────────────────────
-    const row4Y = config.designHeight * 0.62;
-    this.addChild(this.createRowCard(row4Y));
-
-    const bgmMuteIcon = this.createIcon('♫', row4Y, -430);
-    this.addChild(bgmMuteIcon);
-
-    const bgmMuteTitle = this.createLabel('音乐', row4Y, -380);
-    this.addChild(bgmMuteTitle);
-
-    const muteContainer2 = new Container();
-    muteContainer2.eventMode = 'static';
-    muteContainer2.cursor = 'pointer';
-    muteContainer2.position.set(config.designWidth / 2 + 250, row4Y);
-
-    this.bgmMuteIndicator = new Graphics();
-    this.drawMuteIndicator(this.bgmMuteIndicator, audio.isBgmMuted());
-    muteContainer2.addChild(this.bgmMuteIndicator);
-
-    const muteHitArea2 = new Graphics();
-    muteHitArea2.rect(-60, -48, 120, 96);
-    muteHitArea2.alpha = 0;
-    muteHitArea2.eventMode = 'static';
-    muteContainer2.addChild(muteHitArea2);
-
-    muteContainer2.on('pointertap', () => {
-      audio.setBgmMuted(!audio.isBgmMuted());
-      this.drawMuteIndicator(this.bgmMuteIndicator, audio.isBgmMuted());
-      this.bgmMuteLabel.text = audio.isBgmMuted() ? '关' : '开';
-    });
-    this.addChild(muteContainer2);
-
-    this.bgmMuteLabel = new Text({
-      text: audio.isBgmMuted() ? '关' : '开',
-      style: {
-        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
-        fontSize: 30,
-        fontWeight: '400',
-        fill: 0xfff5dc,
-      },
-    });
-    this.bgmMuteLabel.anchor.set(0.5, 0.5);
-    this.bgmMuteLabel.position.set(config.designWidth / 2 + 350, row4Y);
-    this.addChild(this.bgmMuteLabel);
-
-    // Footer
-    const footer = new Text({
-      text: 'Vita Mahjong v1.0',
-      style: {
-        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
-        fontSize: 26,
-        fontWeight: '400',
-        fill: config.colors.secondary,
-      },
-    });
-    footer.anchor.set(0.5);
-    footer.position.set(config.designWidth / 2, config.designHeight * 0.78);
-    this.addChild(footer);
-
     // ─── Reset Progress ──────────────────────────────────
-    const resetRowY = config.designHeight * 0.72;
+    const resetRowY = config.designHeight * 0.57;
     this.addChild(this.createRowCard(resetRowY));
 
     const resetButton = new Button({
@@ -258,6 +161,20 @@ export class SettingsScreen extends Container {
     });
     this.addChild(this.resetConfirmDialog);
 
+    // Footer
+    const footer = new Text({
+      text: 'Vita Mahjong v1.0',
+      style: {
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontSize: 26,
+        fontWeight: '400',
+        fill: config.colors.secondary,
+      },
+    });
+    footer.anchor.set(0.5);
+    footer.position.set(config.designWidth / 2, config.designHeight * 0.73);
+    this.addChild(footer);
+
     // Restore UI to match persisted audio settings
     this.updateFromAudioManager();
   }
@@ -265,13 +182,9 @@ export class SettingsScreen extends Container {
   updateFromAudioManager(): void {
     const audio = AudioManager.getInstance();
     this.sfxSlider.setValue(audio.getSfxVolume());
-    this.bgmSlider.setValue(audio.getBgmVolume());
     this.sfxValueText.text = String(Math.round(audio.getSfxVolume() * 100));
-    this.bgmValueText.text = String(Math.round(audio.getBgmVolume() * 100));
     this.drawMuteIndicator(this.sfxMuteIndicator, audio.isSfxMuted());
-    this.drawMuteIndicator(this.bgmMuteIndicator, audio.isBgmMuted());
     this.sfxMuteLabel.text = audio.isSfxMuted() ? '关' : '开';
-    this.bgmMuteLabel.text = audio.isBgmMuted() ? '关' : '开';
   }
 
   // ── Helpers ──────────────────────────────────────────

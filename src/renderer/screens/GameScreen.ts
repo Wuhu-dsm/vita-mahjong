@@ -342,6 +342,7 @@ export class GameScreen extends Container {
           this.flyingStones.delete(result.stone.id);
         }
         this.tilePool.free(tile);
+        this.endAnimation();
         this.finishTapResult(result, targetSlotIndex);
       },
     });
@@ -397,7 +398,6 @@ export class GameScreen extends Container {
 
     this.checkTerminal(result);
     this.boardNeedsRender = true;
-    this.endAnimation();
   }
 
   private checkTerminal(result: GameTapResult): void {
