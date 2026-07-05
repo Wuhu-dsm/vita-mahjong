@@ -4,3 +4,5 @@ public/levels/*.json
 public/assets/textures/*.png
 *.log
 .DS_Store
+.vercel
+.env*

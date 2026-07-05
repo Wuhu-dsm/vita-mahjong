@@ -33,7 +33,7 @@ export async function createApp(): Promise<Application> {
   await loadAssets(['home', 'result', 'fonts']);
 
   const screenManager = new ScreenManager(app);
-  const homeScreen = new HomeScreen();
+  const homeScreen = new HomeScreen({ ticker: app.ticker });
   const gameScreen = await GameScreen.create({
     ticker: app.ticker,
     isLowEndDevice: lowEndDevice,
@@ -64,7 +64,8 @@ export async function createApp(): Promise<Application> {
   }
 
   homeScreen.on(HomeScreen.START_LEVEL, () => {
-    void startLevel(currentLevel);
+    const selectedLevel = currentLevel;
+    void startLevelFromHome(selectedLevel);
   });
 
   homeScreen.on(HomeScreen.OPEN_SETTINGS, () => {
@@ -93,6 +94,17 @@ export async function createApp(): Promise<Application> {
   });
 
   return app;
+
+  async function startLevelFromHome(level: number): Promise<void> {
+    try {
+      if (level === 3) {
+        await homeScreen.playDoorOpen();
+      }
+      await startLevel(level);
+    } finally {
+      homeScreen.resetDoor();
+    }
+  }
 
   async function startLevel(level: number): Promise<void> {
     // Initialize audio on first user gesture (autoplay policy)

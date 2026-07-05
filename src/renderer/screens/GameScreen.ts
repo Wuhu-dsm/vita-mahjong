@@ -1,4 +1,4 @@
-import { Assets, Container, Sprite, Texture, type Ticker } from 'pixi.js';
+import { Assets, Container, Graphics, Sprite, Texture, type Ticker } from 'pixi.js';
 import { loadAssets } from '../../app/assets';
 import { config } from '../../app/config';
 import { GameState, type GameStats, type GameTapResult } from '../../engine/GameState';
@@ -15,6 +15,7 @@ import { Tray } from '../components/Tray';
 import { ParticleBurst } from '../effects/ParticleBurst';
 import { ScoreFloater } from '../effects/ScoreFloater';
 import { TilePool } from '../pools/TilePool';
+import { addScreenGlow, addSubtleBorder, makeVerticalGradient } from '../components/VisualPrimitives';
 
 export interface GameScreenOptions {
   ticker?: Ticker;
@@ -113,7 +114,9 @@ export class GameScreen extends Container {
     this.background = new Sprite(requireTexture('bg_game'));
     this.background.width = config.designWidth;
     this.background.height = config.designHeight;
+    this.background.visible = false;
     this.addChild(this.background);
+    this.drawGameBackground();
 
     this.hud = new HUD(options.onBack);
     this.tray = new Tray();
@@ -200,13 +203,13 @@ export class GameScreen extends Container {
     const bounds = this.calculateBounds(positions);
     const boardScale = Math.min(
       1,
-      (config.designWidth * 0.92) / Math.max(1, bounds.width),
-      (config.designHeight * 0.52) / Math.max(1, bounds.height),
+      (config.designWidth * 0.96) / Math.max(1, bounds.width),
+      (config.designHeight * 0.6) / Math.max(1, bounds.height),
     );
 
     this.boardLayer.position.set(
       config.designWidth / 2 - ((bounds.minX + bounds.maxX) / 2) * boardScale,
-      config.designHeight * 0.56 - ((bounds.minY + bounds.maxY) / 2) * boardScale,
+      config.designHeight * 0.55 - ((bounds.minY + bounds.maxY) / 2) * boardScale,
     );
     this.boardLayer.scale.set(boardScale);
 
@@ -354,13 +357,8 @@ export class GameScreen extends Container {
     };
 
     if (result.matched && result.removed.length >= 2) {
-      const tile1 = this.tileByStoneId.get(result.removed[0].id);
-      const tile2 = this.tileByStoneId.get(result.removed[1].id);
-      if (tile1 && tile2) {
-        const midX = (tile1.x + tile2.x) / 2;
-        const midY = (tile1.y + tile2.y) / 2;
-        this.particleBurst.emit(midX, midY);
-      }
+      const burstAnchor = this.tray.getSlotCenter(targetSlotIndex);
+      this.particleBurst.emit(burstAnchor.x, burstAnchor.y - 76);
       this.tray.playMatchRemoval(result.removed, targetSlotIndex, this.level.theme, this.ticker, finalize);
       return;
     }
@@ -512,5 +510,32 @@ export class GameScreen extends Container {
 
   private validateLevel(value: unknown): Level {
     return validatePlayableLevel(value);
+  }
+
+  private drawGameBackground(): void {
+    this.addChild(
+      makeVerticalGradient(config.designWidth, config.designHeight, [
+        { y: 0, color: 0x08784d },
+        { y: 0.16, color: 0x095944 },
+        { y: 0.55, color: 0x073b32 },
+        { y: 1, color: 0x031e1b },
+      ]),
+    );
+    addScreenGlow(this, 0x24d98c, 135, 110, 560, 0.8);
+    addScreenGlow(this, 0x0b211d, config.designWidth / 2, 1380, 680, 0.5);
+
+    const texture = new Graphics();
+    for (let x = 0; x < config.designWidth; x += 84) {
+      texture.rect(x, 0, 2, config.designHeight).fill({ color: 0xb1f0ce, alpha: 0.025 });
+    }
+    for (let y = 520; y < config.designHeight - 220; y += 530) {
+      texture.roundRect(88, y, config.designWidth - 176, 4, 2).fill({ color: 0xc8ffe2, alpha: 0.045 });
+      texture.roundRect(88, y + 46, config.designWidth - 176, 3, 2).fill({ color: 0x05251f, alpha: 0.09 });
+    }
+    texture.ellipse(126, 610, 92, 28).stroke({ color: 0x123c32, width: 8, alpha: 0.2 });
+    texture.ellipse(918, 620, 90, 24).stroke({ color: 0x123c32, width: 8, alpha: 0.16 });
+    texture.ellipse(180, 1710, 126, 34).stroke({ color: 0x10362f, width: 8, alpha: 0.16 });
+    this.addChild(texture);
+    addSubtleBorder(this);
   }
 }

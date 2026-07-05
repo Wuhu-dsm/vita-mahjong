@@ -1,5 +1,4 @@
-import { Assets, Container, Rectangle, Sprite, Text, Texture } from 'pixi.js';
-import type { AssetKey } from '../../app/assets';
+import { Container, Graphics, Rectangle, Text } from 'pixi.js';
 import { config } from '../../app/config';
 
 export type ButtonTextureKey =
@@ -17,25 +16,14 @@ export interface ButtonOptions {
   onTap?: () => void;
 }
 
-function requireTexture(key: AssetKey): Texture {
-  const texture = Assets.get<Texture>(key);
-  if (!texture) {
-    throw new Error(`Texture "${key}" has not been loaded`);
-  }
-  return texture;
-}
-
 export class Button extends Container {
-  private readonly background: Sprite;
+  private readonly background = new Graphics();
   private readonly labelText: Text;
 
   constructor(options: ButtonOptions) {
     super();
 
-    this.background = new Sprite(requireTexture(options.textureKey));
-    this.background.anchor.set(0.5);
-    this.background.width = options.width;
-    this.background.height = options.height;
+    this.drawBackground(options);
     this.addChild(this.background);
 
     this.labelText = new Text({
@@ -43,9 +31,9 @@ export class Button extends Container {
       style: {
         fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
         fontSize: options.fontSize ?? 42,
-        fontWeight: '800',
+        fontWeight: '900',
         fill: options.textColor ?? 0xfff7d2,
-        stroke: { color: 0x5a2d16, width: 4 },
+        stroke: { color: 0x4f210c, width: 5 },
         align: 'center',
       },
     });
@@ -68,5 +56,41 @@ export class Button extends Container {
 
   setLabel(label: string): void {
     this.labelText.text = label;
+  }
+
+  private drawBackground(options: ButtonOptions): void {
+    const g = this.background;
+    const width = options.width;
+    const height = options.height;
+    const x = -width / 2;
+    const y = -height / 2;
+
+    if (options.textureKey === 'btn_circle_brown') {
+      const radius = Math.min(width, height) / 2;
+      g.circle(0, 0, radius);
+      g.fill({ color: 0x130806, alpha: 0.7 });
+      g.circle(0, 0, radius - 8);
+      g.fill({ color: 0x7d3f18 });
+      g.circle(0, 0, radius - 18);
+      g.fill({ color: 0x421407 });
+      g.circle(-radius * 0.18, -radius * 0.2, radius * 0.54);
+      g.fill({ color: 0x6d3213, alpha: 0.55 });
+      g.circle(0, 0, radius - 9);
+      g.stroke({ color: 0xffcb79, width: 6, alpha: 0.95 });
+      return;
+    }
+
+    const isGreen = options.textureKey === 'btn_green_capsule';
+    const radius = height / 2;
+    g.roundRect(x - 6, y + 14, width + 12, height, radius);
+    g.fill({ color: 0x1b0b05, alpha: 0.55 });
+    g.roundRect(x, y, width, height, radius);
+    g.fill({ color: isGreen ? 0x118124 : 0x9c4d16 });
+    g.roundRect(x + 10, y + 10, width - 20, height - 20, radius - 10);
+    g.fill({ color: isGreen ? 0x4fb83c : 0xe87a17 });
+    g.roundRect(x + 18, y + 16, width - 36, height * 0.36, height * 0.18);
+    g.fill({ color: 0xfff0ad, alpha: isGreen ? 0.18 : 0.28 });
+    g.roundRect(x, y, width, height, radius);
+    g.stroke({ color: 0xffd889, width: 7, alpha: 0.95 });
   }
 }

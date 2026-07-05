@@ -1,12 +1,13 @@
 import { Container, Graphics, type Ticker } from 'pixi.js';
 import { config } from '../../app/config';
 
-const POOL_BUDGET = 40;
+const POOL_BUDGET = Math.max(60, config.particles.highCount);
 
 interface Particle {
   graphic: Graphics;
   vx: number;
   vy: number;
+  rotationSpeed: number;
   elapsedMs: number;
 }
 
@@ -72,15 +73,20 @@ export class ParticleBurst extends Container {
       const angle = Math.random() * Math.PI * 2;
       const speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
       const color = pickColor(false); // isLowEnd handled by count, colors still varied
+      const width = size * (0.65 + Math.random() * 1.25);
+      const height = size * (0.45 + Math.random() * 0.95);
 
-      g.rect(-size / 2, -size / 2, size, size);
+      g.roundRect(-width / 2, -height / 2, width, height, 3 + Math.random() * 4);
       g.fill({ color });
-      g.position.set(midX, midY);
+      g.stroke({ color: 0xd0d0d0, width: 2, alpha: 0.75 });
+      g.position.set(midX + (Math.random() - 0.5) * 90, midY + (Math.random() - 0.5) * 42);
+      g.rotation = Math.random() * Math.PI;
 
       this.particles.push({
         graphic: g,
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
+        vy: Math.sin(angle) * speed - Math.random() * 4.8,
+        rotationSpeed: (Math.random() - 0.5) * 0.32,
         elapsedMs: 0,
       });
     }
@@ -105,6 +111,7 @@ export class ParticleBurst extends Container {
       p.graphic.y += p.vy * ticker.deltaMS * 0.06;
       p.vy += gravity;
       p.graphic.alpha = 1 - progress;
+      p.graphic.rotation += p.rotationSpeed;
       p.graphic.scale.set(1 - progress * 0.6);
 
       if (progress >= 1) {

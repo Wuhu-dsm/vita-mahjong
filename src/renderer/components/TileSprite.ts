@@ -1,5 +1,4 @@
-import { Assets, Container, Rectangle, Sprite, Text, Texture } from 'pixi.js';
-import type { AssetKey } from '../../app/assets';
+import { Container, Graphics, Rectangle, Text } from 'pixi.js';
 import { config } from '../../app/config';
 import type { Stone, ThemeId } from '../../engine/types';
 
@@ -55,74 +54,73 @@ const FACE_SYMBOLS: Record<ThemeId, string[]> = {
   myth: ['龙', '凤', '麟', '卦', '意', '珠', '剑', '印', '星', '符', '鼎', '镜'],
 };
 
-const FACE_TINTS = [0xc0392b, 0x1b4d3e, 0x2c3e50, 0x8e44ad, 0xb9770e, 0x117a65];
+const FACE_TINTS = [0xc42c2f, 0x006b8d, 0x147d59, 0x0f506f, 0x1f7f5b, 0xb4272b];
 
 export const TILE_TAPPED = 'tile-tapped';
 
-function requireTexture(key: AssetKey): Texture {
-  const texture = Assets.get<Texture>(key);
-  if (!texture) {
-    throw new Error(`Texture "${key}" has not been loaded`);
-  }
-  return texture;
-}
-
 export class TileSprite extends Container {
-  readonly faceSprite: Sprite;
-  readonly sideSprite: Sprite;
-  readonly shadowSprite: Sprite;
+  readonly faceSprite: Graphics;
+  readonly sideSprite: Graphics;
+  readonly shadowSprite: Graphics;
 
-  private readonly haloSprite: Sprite;
+  private readonly haloSprite: Graphics;
   private readonly symbolText: Text;
+  private readonly smallSymbolText: Text;
   private stoneId: string | null = null;
   private faceId: number | null = null;
 
   constructor() {
     super();
 
-    this.shadowSprite = new Sprite(requireTexture('tile_side'));
-    this.shadowSprite.anchor.set(0.5);
-    this.shadowSprite.width = config.tile.width;
-    this.shadowSprite.height = 34;
-    this.shadowSprite.position.set(10, config.tile.height / 2 + 20);
-    this.shadowSprite.tint = 0x000000;
+    this.shadowSprite = new Graphics();
+    this.shadowSprite.roundRect(-config.tile.width / 2 + 14, -config.tile.height / 2 + 34, config.tile.width, config.tile.height, 22);
+    this.shadowSprite.fill({ color: 0x00140d });
+    this.shadowSprite.position.set(18, 30);
     this.shadowSprite.alpha = 0.22;
     this.addChild(this.shadowSprite);
 
-    this.sideSprite = new Sprite(requireTexture('tile_side'));
-    this.sideSprite.anchor.set(0.5);
-    this.sideSprite.width = config.tile.width;
-    this.sideSprite.height = 38;
-    this.sideSprite.position.set(0, config.tile.height / 2 + 12);
+    this.sideSprite = new Graphics();
+    this.drawSide(0x0b9128);
     this.addChild(this.sideSprite);
 
-    this.haloSprite = new Sprite(requireTexture('tile_face'));
-    this.haloSprite.anchor.set(0.5);
-    this.haloSprite.width = config.tile.width + 26;
-    this.haloSprite.height = config.tile.height + 26;
-    this.haloSprite.tint = config.colors.accent;
+    this.haloSprite = new Graphics();
+    this.haloSprite.roundRect(-config.tile.width / 2 - 12, -config.tile.height / 2 - 12, config.tile.width + 24, config.tile.height + 24, 26);
+    this.haloSprite.fill({ color: 0x73e9ff });
     this.haloSprite.alpha = 0;
     this.addChild(this.haloSprite);
 
-    this.faceSprite = new Sprite(requireTexture('tile_face'));
-    this.faceSprite.anchor.set(0.5);
-    this.faceSprite.width = config.tile.width;
-    this.faceSprite.height = config.tile.height;
+    this.faceSprite = new Graphics();
+    this.drawFace();
     this.addChild(this.faceSprite);
 
     this.symbolText = new Text({
       text: '',
       style: {
         fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
-        fontSize: 50,
+        fontSize: 124,
+        fontWeight: '900',
+        fill: FACE_TINTS[0],
+        align: 'center',
+        stroke: { color: 0xffffff, width: 2 },
+      },
+    });
+    this.symbolText.anchor.set(0.5);
+    this.symbolText.position.set(0, -18);
+    this.addChild(this.symbolText);
+
+    this.smallSymbolText = new Text({
+      text: '',
+      style: {
+        fontFamily: 'Vita Noto Sans SC, Noto Sans SC, PingFang SC, Microsoft YaHei, sans-serif',
+        fontSize: 42,
         fontWeight: '900',
         fill: FACE_TINTS[0],
         align: 'center',
       },
     });
-    this.symbolText.anchor.set(0.5);
-    this.symbolText.position.set(0, -4);
-    this.addChild(this.symbolText);
+    this.smallSymbolText.anchor.set(0.5);
+    this.smallSymbolText.position.set(0, config.tile.height * 0.34);
+    this.addChild(this.smallSymbolText);
 
     this.eventMode = 'static';
     this.cursor = 'pointer';
@@ -153,7 +151,9 @@ export class TileSprite extends Container {
     const faceSet = FACE_SYMBOLS[theme] ?? FACE_SYMBOLS.zodiac;
     this.symbolText.text = faceSet[faceId % faceSet.length] ?? String(faceId + 1);
     this.symbolText.style.fill = FACE_TINTS[faceId % FACE_TINTS.length];
-    this.sideSprite.tint = config.colors.tileSide;
+    this.smallSymbolText.text = FACE_SYMBOLS.zodiac[faceId % FACE_SYMBOLS.zodiac.length] ?? '';
+    this.smallSymbolText.style.fill = FACE_TINTS[faceId % FACE_TINTS.length];
+    this.drawSide(config.colors.tileSide);
   }
 
   getStoneId(): string | null {
@@ -165,8 +165,11 @@ export class TileSprite extends Container {
   }
 
   highlight(enabled: boolean): void {
-    this.haloSprite.alpha = enabled ? 0.75 : 0;
-    this.scale.set(enabled ? 1.04 : 1);
+    this.haloSprite.clear();
+    this.haloSprite.roundRect(-config.tile.width / 2 - 14, -config.tile.height / 2 - 14, config.tile.width + 28, config.tile.height + 28, 28);
+    this.haloSprite.fill({ color: enabled ? 0x58ebff : config.colors.accent });
+    this.haloSprite.alpha = enabled ? 0.92 : 0;
+    this.scale.set(enabled ? 1.06 : 1);
   }
 
   /** Set halo alpha directly for hint pulse animation. */
@@ -177,6 +180,7 @@ export class TileSprite extends Container {
   setBlocked(enabled: boolean): void {
     this.faceSprite.alpha = enabled ? 0.56 : 1;
     this.symbolText.alpha = enabled ? 0.42 : 1;
+    this.smallSymbolText.alpha = enabled ? 0.42 : 1;
   }
 
   resetForPool(): void {
@@ -191,4 +195,27 @@ export class TileSprite extends Container {
     this.removeAllListeners(TILE_TAPPED);
   }
 
+  private drawFace(): void {
+    const w = config.tile.width;
+    const h = config.tile.height;
+    this.faceSprite.clear();
+    this.faceSprite.roundRect(-w / 2, -h / 2, w, h, 22);
+    this.faceSprite.fill({ color: 0xfdfdf5 });
+    this.faceSprite.roundRect(-w / 2 + 8, -h / 2 + 8, w - 16, h - 16, 18);
+    this.faceSprite.stroke({ color: 0xd9c7aa, width: 3, alpha: 0.72 });
+    this.faceSprite.roundRect(-w / 2, -h / 2, w, h, 22);
+    this.faceSprite.stroke({ color: 0x0b6426, width: 4, alpha: 0.9 });
+    this.faceSprite.roundRect(-w / 2 + 12, -h / 2 + 12, w * 0.24, h - 44, 15);
+    this.faceSprite.fill({ color: 0xffffff, alpha: 0.38 });
+  }
+
+  private drawSide(color: number): void {
+    const w = config.tile.width;
+    const h = config.tile.height;
+    this.sideSprite.clear();
+    this.sideSprite.roundRect(-w / 2 + 5, h / 2 - 24, w - 10, 40, 14);
+    this.sideSprite.fill({ color });
+    this.sideSprite.roundRect(-w / 2 + 8, h / 2 - 17, w - 16, 20, 9);
+    this.sideSprite.fill({ color: 0x16c238, alpha: 0.72 });
+  }
 }

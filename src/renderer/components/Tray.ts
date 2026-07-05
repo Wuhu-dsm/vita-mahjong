@@ -1,60 +1,58 @@
-import { Assets, Container, Sprite, type Ticker, Texture } from 'pixi.js';
-import type { AssetKey } from '../../app/assets';
+import { Container, Graphics, type Ticker } from 'pixi.js';
 import { config } from '../../app/config';
 import type { Stone, ThemeId } from '../../engine/types';
 import { TileSprite } from './TileSprite';
 
 export const TRAY_SLOT_COUNT = 4;
 
-function requireTexture(key: AssetKey): Texture {
-  const texture = Assets.get<Texture>(key);
-  if (!texture) {
-    throw new Error(`Texture "${key}" has not been loaded`);
-  }
-  return texture;
-}
-
 function easeOutCubic(t: number): number {
   return 1 - Math.pow(1 - t, 3);
+}
+
+interface RemovalShard {
+  graphic: Graphics;
+  vx: number;
+  vy: number;
+  rotationSpeed: number;
 }
 
 export class Tray extends Container {
   private readonly slotTiles: Array<TileSprite | null> = Array.from({ length: TRAY_SLOT_COUNT }, () => null);
   private readonly slotX: number[] = [];
+  private readonly glow = new Graphics();
 
   constructor() {
     super();
-    this.position.set(config.designWidth / 2, config.designHeight * 0.14);
+    this.position.set(config.designWidth / 2, 352);
 
-    const totalWidth = TRAY_SLOT_COUNT * config.tray.slotSize + (TRAY_SLOT_COUNT - 1) * config.tray.gap + 48;
+    const totalWidth = TRAY_SLOT_COUNT * config.tray.slotSize + 44;
+    this.glow.roundRect(-totalWidth / 2 - 4, -config.tray.height / 2 - 4, totalWidth + 8, config.tray.height + 8, 24);
+    this.glow.stroke({ color: 0x5cff28, width: 12, alpha: 0.0 });
+    this.addChild(this.glow);
 
-    const border = new Sprite(requireTexture('btn_circle_brown'));
-    border.anchor.set(0.5);
-    border.width = totalWidth + 16;
-    border.height = config.tray.height + 22;
-    border.tint = config.colors.trayBorder;
-    border.alpha = 0.95;
-
-    const background = new Sprite(requireTexture('btn_circle_brown'));
-    background.anchor.set(0.5);
-    background.width = totalWidth;
-    background.height = config.tray.height;
-    background.tint = config.colors.trayBg;
-    background.alpha = 0.98;
-    this.addChild(border, background);
+    const panel = new Graphics();
+    panel.roundRect(-totalWidth / 2 - 8, -config.tray.height / 2 + 16, totalWidth + 16, config.tray.height, 22);
+    panel.fill({ color: 0x120502, alpha: 0.48 });
+    panel.roundRect(-totalWidth / 2, -config.tray.height / 2, totalWidth, config.tray.height, 20);
+    panel.fill({ color: 0x421407 });
+    panel.roundRect(-totalWidth / 2 + 10, -config.tray.height / 2 + 10, totalWidth - 20, config.tray.height - 20, 16);
+    panel.fill({ color: 0x2b0d05 });
+    panel.roundRect(-totalWidth / 2, -config.tray.height / 2, totalWidth, config.tray.height, 20);
+    panel.stroke({ color: 0xb86f2d, width: 10 });
+    this.addChild(panel);
 
     const startX = -((TRAY_SLOT_COUNT - 1) * (config.tray.slotSize + config.tray.gap)) / 2;
     for (let index = 0; index < TRAY_SLOT_COUNT; index += 1) {
       const x = startX + index * (config.tray.slotSize + config.tray.gap);
       this.slotX.push(x);
 
-      const slot = new Sprite(requireTexture('tile_face'));
-      slot.anchor.set(0.5);
-      slot.position.set(x, 0);
-      slot.width = config.tray.slotSize;
-      slot.height = config.tray.slotSize;
-      slot.alpha = 0.18;
-      slot.tint = config.colors.accent;
+      const slot = new Graphics();
+      slot.roundRect(x - config.tray.slotSize / 2, -config.tray.height / 2 + 16, config.tray.slotSize, config.tray.height - 32, 7);
+      slot.fill({ color: 0x3a1008, alpha: 0.74 });
+      if (index > 0) {
+        slot.rect(x - config.tray.slotSize / 2, -config.tray.height / 2 + 14, 2, config.tray.height - 28);
+        slot.fill({ color: 0x6d2b12, alpha: 0.7 });
+      }
       this.addChild(slot);
     }
   }
@@ -74,7 +72,7 @@ export class Tray extends Container {
       if (!tile) {
         tile = new TileSprite();
         tile.eventMode = 'none';
-        tile.scale.set(0.48);
+        tile.scale.set(0.52);
         tile.position.set(this.slotX[index], -2);
         this.slotTiles[index] = tile;
         this.addChild(tile);
@@ -82,7 +80,7 @@ export class Tray extends Container {
 
       tile.setStone(stone, theme);
       tile.eventMode = 'none';
-      tile.scale.set(0.48);
+      tile.scale.set(0.52);
       tile.position.set(this.slotX[index], -2);
       tile.alpha = 1;
       tile.visible = true;
@@ -133,7 +131,7 @@ export class Tray extends Container {
     const transient = new TileSprite();
     transient.eventMode = 'none';
     transient.setStone(incoming, theme);
-    transient.scale.set(0.48);
+    transient.scale.set(0.52);
     transient.position.set(this.slotX[incomingSlotIndex], -2);
     this.addChild(transient);
     affectedTiles.push(transient);
@@ -144,19 +142,42 @@ export class Tray extends Container {
       return;
     }
 
+    const shards = affectedTiles.flatMap((tile) => this.spawnRemovalShards(tile.x, tile.y));
     let elapsed = 0;
-    const duration = 180;
+    const duration = 420;
     const tick = (frame: Ticker): void => {
       elapsed += frame.deltaMS;
       const progress = Math.min(elapsed / duration, 1);
       const eased = easeOutCubic(progress);
+      const collapse = easeOutCubic(Math.max(0, (progress - 0.14) / 0.86));
+      const pop = 1 + Math.sin(progress * Math.PI) * 0.24;
+      this.glow.alpha = 1 - progress;
+      this.glow.clear();
+      this.glow.roundRect(
+        -(TRAY_SLOT_COUNT * config.tray.slotSize + 44) / 2 - 4,
+        -config.tray.height / 2 - 4,
+        TRAY_SLOT_COUNT * config.tray.slotSize + 52,
+        config.tray.height + 8,
+        24,
+      );
+      this.glow.stroke({ color: 0xbaff4d, width: 18, alpha: Math.max(0, 1 - progress) });
       affectedTiles.forEach((tile) => {
-        tile.scale.set(0.48 * (1 - eased));
-        tile.alpha = 1 - eased;
+        tile.scale.set(0.52 * pop * (1 - collapse));
+        tile.alpha = 1 - collapse;
+      });
+      shards.forEach((shard) => {
+        shard.graphic.x += shard.vx * frame.deltaMS;
+        shard.graphic.y += shard.vy * frame.deltaMS;
+        shard.vy += 0.03 * frame.deltaMS;
+        shard.graphic.rotation += shard.rotationSpeed * frame.deltaMS;
+        shard.graphic.alpha = 1 - eased;
+        shard.graphic.scale.set(1 + progress * 0.55);
       });
 
       if (progress >= 1) {
         ticker.remove(tick);
+        this.glow.clear();
+        shards.forEach((shard) => shard.graphic.parent?.removeChild(shard.graphic));
         transient.parent?.removeChild(transient);
         onComplete();
       }
@@ -169,5 +190,29 @@ export class Tray extends Container {
     return this.slotTiles.findIndex((tile) => {
       return tile?.visible && (tile.getStoneId() === stoneId || tile.getFaceId() === face);
     });
+  }
+
+  private spawnRemovalShards(x: number, y: number): RemovalShard[] {
+    const shards: RemovalShard[] = [];
+    for (let i = 0; i < 18; i += 1) {
+      const shard = new Graphics();
+      const width = 10 + Math.random() * 18;
+      const height = 8 + Math.random() * 16;
+      const angle = -Math.PI * 0.9 + Math.random() * Math.PI * 1.8;
+      const speed = 0.28 + Math.random() * 0.46;
+      shard.roundRect(-width / 2, -height / 2, width, height, 3);
+      shard.fill({ color: i % 3 === 0 ? 0xffffff : i % 3 === 1 ? 0xf8f0d4 : 0xcfffd0 });
+      shard.stroke({ color: 0x78d96b, width: 2, alpha: 0.68 });
+      shard.position.set(x + (Math.random() - 0.5) * 58, y + (Math.random() - 0.5) * 38);
+      shard.rotation = Math.random() * Math.PI;
+      this.addChild(shard);
+      shards.push({
+        graphic: shard,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0.22,
+        rotationSpeed: (Math.random() - 0.5) * 0.018,
+      });
+    }
+    return shards;
   }
 }
