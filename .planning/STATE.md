@@ -88,7 +88,7 @@ None yet.
 | # | Description | Date | Commit | Status | Directory |
 |---|-------------|------|--------|--------|-----------|
 | 260705-cif | 修复首页和游戏页视觉缺陷 | 2026-07-05 | uncommitted | | [260705-cif-3-hud](./quick/260705-cif-3-hud/) |
-| 260705-d70 | Fix rapid-tap drops and rectangular layouts | 2026-07-05 | fa7e5ac | Verified | [260705-d70-fix-two-gameplay-issues-in-vita-mahjong-](./quick/260705-d70-fix-two-gameplay-issues-in-vita-mahjong-/) |
+| 260705-d70 | Fix rapid-tap drops and rectangular layouts | 2026-07-05 | 7104bad | Verified | [260705-d70-fix-two-gameplay-issues-in-vita-mahjong-](./quick/260705-d70-fix-two-gameplay-issues-in-vita-mahjong-/) |
 
 ## Deferred Items
 
